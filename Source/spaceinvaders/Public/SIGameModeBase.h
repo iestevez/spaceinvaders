@@ -16,5 +16,6 @@ class SPACEINVADERS_API ASIGameModeBase : public AGameModeBase
 
 public:
 	ASIGameModeBase();
+	virtual void BeginPlay();
 	
 };
