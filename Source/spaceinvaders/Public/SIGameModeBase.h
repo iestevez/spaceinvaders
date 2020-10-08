@@ -15,7 +15,21 @@ class SPACEINVADERS_API ASIGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+	UPROPERTY()
+		FVector startPoint;
+
+	UPROPERTY()
+		FVector endPoint;
+
+	UPROPERTY()
+		int32 nInvaderRows;
+
+	UPROPERTY()
+		int32 nInvaderCols;
+
+
 	ASIGameModeBase();
 	virtual void BeginPlay();
 	
+
 };

@@ -14,7 +14,10 @@ ASIGameModeBase::ASIGameModeBase() {
 
 void ASIGameModeBase::BeginPlay() {
 
-
+	Super::BeginPlay();
+	FTransform SpawnLocation;
+	AInvader* spawnedInvader;
+	spawnedInvader=(AInvader* )GetWorld()->SpawnActor(AInvader::StaticClass(), &SpawnLocation);
 	// TODO Mecánica de Spawn de un Blueprint Class
 	//FTransform SpawnLocation;
 	//TSubclassOf<class AInvader> bpInvader;
