@@ -2,36 +2,26 @@
 
 
 #include "InvaderSquad.h"
+#include "Invader.h"
 
-// Sets default values
-AInvaderSquad::AInvaderSquad()
-	: nRows(5)
-	,nCols(5)
-	,velocity(1.0f)
-	,direction(1)
-	,startPoint(FVector(-500.0f,-500.0f,0.0f))
-	,endPoint(FVector(500.0f,500.0f,0.0f))
-{
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	Initialize();
-	
 
-}
 
-AInvaderSquad::AInvaderSquad(FVector& start, FVector& end, int32 p, int32 q) 
-	: nRows(p)
-	, nCols(q)
-	, velocity(1.0f)
+
+AInvaderSquad::AInvaderSquad() 
+	: nRows(AInvaderSquad::defaultNRows)
+	, nCols(AInvaderSquad::defaultNCols)
+	, velocity(AInvaderSquad::defaultVelocity)
 	, direction(1)
-	, startPoint(start)
-	, endPoint(end)
+	, startPoint(AInvaderSquad::defaultStartPoint)
+	, endPoint(AInvaderSquad::defaultEndPoint)
+	, extraSeparation(AInvaderSquad::defaultExtraSeparation)
 
 {
 	Initialize();
 
 }
 
-AInvaderSquad::Initialize() {
+void AInvaderSquad::Initialize() {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -39,6 +29,28 @@ AInvaderSquad::Initialize() {
 void AInvaderSquad::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
+	//Spawn Invaders
+	
+	FVector spawnLocation=this->startPoint;
+	
+	for (int i = 0; i < this->nCols; i++)
+	{
+
+		for (int j = 0; j < this->nRows; j++)
+		{
+
+			AInvader* spawnedInvader;
+			spawnedInvader = (AInvader*)GetWorld()->SpawnActor(AInvader::StaticClass(), &spawnLocation);
+			SquadMembers.Add(spawnedInvader);
+			spawnLocation.X += AInvader::boundRadius * 2 + this->extraSeparation;
+		}
+		spawnLocation.X = this->startPoint.X;
+
+		spawnLocation.Y += AInvader::boundRadius * 2 + this->extraSeparation;
+	}
+
 	
 }
 
@@ -46,6 +58,17 @@ void AInvaderSquad::BeginPlay()
 void AInvaderSquad::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	for (auto invader : SquadMembers) {
+		//------------------------------------
+
+
+		//------------------------------------
+	}
 
 }
+
+
+// Static Members Initialization
+FVector AInvaderSquad::defaultStartPoint = FVector(300.0f, -1800.0f, 0.0f);
+FVector AInvaderSquad::defaultEndPoint = FVector(500.0f, 500.0f, 0.0f);
 

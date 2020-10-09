@@ -14,12 +14,20 @@ AInvader::AInvader()
 	RootComponent = Root;
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMeshComponent");
 
-	auto MeshAsset = ConstructorHelpers::FObjectFinder<UStaticMesh>(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 
-	Mesh->SetStaticMesh(MeshAsset.Object);
+	if (AInvader::staticMesh == nullptr) 
+		setInvaderMesh();
+
+	if(AInvader::staticMesh!=nullptr)
+		Mesh->SetStaticMesh(AInvader::staticMesh);
+
 	Mesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 
 	Mesh->AttachTo(Root);
+
+	FBoxSphereBounds meshBounds = Mesh->GetStaticMesh()->GetBounds();
+	this->boundOrigin = meshBounds.Origin;
+	this->boundRadius = meshBounds.SphereRadius;
 
 }
 
@@ -37,3 +45,32 @@ void AInvader::Tick(float DeltaTime)
 
 }
 
+//Getters and setters
+
+FVector AInvader::getOrigin() {
+	return this->boundOrigin;
+
+}
+
+float AInvader::getRadius() {
+	return this->boundRadius;
+}
+
+
+
+
+
+
+// Static members initialization
+
+void AInvader::setInvaderMesh(const TCHAR* path) {
+
+	auto MeshAsset = ConstructorHelpers::FObjectFinder<UStaticMesh>(path);
+	AInvader::staticMesh = MeshAsset.Object;
+}
+
+
+UStaticMesh* AInvader::staticMesh = nullptr;
+
+FVector AInvader::boundOrigin = FVector(0.0f, 0.0f, 0.0f);
+float AInvader::boundRadius = 0.0f;

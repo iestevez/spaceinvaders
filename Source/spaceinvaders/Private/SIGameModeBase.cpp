@@ -4,7 +4,7 @@
 #include "SIGameModeBase.h"
 #include "SIPawn.h"
 #include "SIPlayerController.h"
-#include "Invader.h"
+#include "InvaderSquad.h"
 
 ASIGameModeBase::ASIGameModeBase() {
 
@@ -15,17 +15,10 @@ ASIGameModeBase::ASIGameModeBase() {
 void ASIGameModeBase::BeginPlay() {
 
 	Super::BeginPlay();
+
+	//Spawn a squad of invaders
 	FTransform SpawnLocation;
-	AInvader* spawnedInvader;
-	spawnedInvader=(AInvader* )GetWorld()->SpawnActor(AInvader::StaticClass(), &SpawnLocation);
-	// TODO Mecánica de Spawn de un Blueprint Class
-	//FTransform SpawnLocation;
-	//TSubclassOf<class AInvader> bpInvader;
-	//static ConstructorHelpers::FObjectFinder<UBlueprint> AssetBPInvader(TEXT("Blueprint'/Game/Blueprints/BP_Invader.BP_Invader'"));
-	//if (AssetBPInvader.Object) {
-	//	bpInvader = (UClass*)AssetBPInvader.Object->GeneratedClass;
-	//}
+	AInvaderSquad* spawnedInvaderSquad;
+	spawnedInvaderSquad=(AInvaderSquad* )GetWorld()->SpawnActor(AInvaderSquad::StaticClass(), &SpawnLocation);
 	
-	
-	//GetWorld()->SpawnActor<AInvader>(bpInvader, &SpawnLocation);
 }
