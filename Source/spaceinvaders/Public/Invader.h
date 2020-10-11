@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/CollisionProfile.h"
+#include "Components/BoxComponent.h"
+#include "InvaderMovementComponent.h"
 #include "Invader.generated.h"
 
 UCLASS()
@@ -19,6 +21,15 @@ public:
 
 	UPROPERTY()
 		UStaticMeshComponent* Mesh;
+
+	UPROPERTY()
+		UInvaderMovementComponent* Movement;
+
+	UPROPERTY()
+		UBoxComponent* TriggerBox;
+
+	UFUNCTION()
+		virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 	// Sets default values for this actor's properties
 	AInvader();
@@ -41,6 +52,9 @@ private:
 	
 	
 	static constexpr const TCHAR* defaultStaticMeshName = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
+	FName leftSideTag = TEXT("leftLimit");
+	FName rightSideTag = TEXT("rightLimit");
+	FName downSideTag = TEXT("downLimit");
 	
 
 	

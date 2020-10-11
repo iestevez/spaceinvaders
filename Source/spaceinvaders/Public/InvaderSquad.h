@@ -23,11 +23,38 @@ protected:
 
 
 public:
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+		float horizontalVelocity = 1000.0f;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+		float verticalVelocity = 1000.0f;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+		InvaderMovementType state = InvaderMovementType::STOP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool isXHorizontal = true;
+
+	UFUNCTION()
+		void SquadOnLeftSide();
+
+	UFUNCTION()
+		void SquadOnRightSide();
+
+	UFUNCTION()
+		void SquadOnDownSide();
+
+	UFUNCTION()
+		void SquadFinishesDown();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void Initialize();
 	void ChangeDirection();
+
+	void UpdateSquadState();
 
 
 private:
@@ -35,6 +62,7 @@ private:
 	FVector endPoint;
 	int32 nRows;
 	int32 nCols;
+	int32 numberOfMembers;
 	float extraSeparation;
 	float velocity;
 	int32 direction;
@@ -45,6 +73,8 @@ private:
 	static FVector defaultEndPoint;
 	static  constexpr const float defaultVelocity = 1.0f;
 	static  constexpr const float defaultExtraSeparation = 0.0f;
+
+	InvaderMovementType previousState = InvaderMovementType::STOP;
 
 	TArray<AInvader*> SquadMembers;
 

@@ -9,6 +9,11 @@
 /**
  * 
  */
+
+// Delegates of this game:
+DECLARE_DELEGATE(FStandardDelegateSignature)
+
+
 UCLASS()
 class SPACEINVADERS_API ASIGameModeBase : public AGameModeBase
 {
@@ -27,6 +32,10 @@ public:
 	UPROPERTY()
 		int32 nInvaderCols;
 
+	FStandardDelegateSignature SquadOnLeftSide;
+	FStandardDelegateSignature SquadOnRightSide;
+	FStandardDelegateSignature SquadOnDownSide;
+	FStandardDelegateSignature SquadFinishesDown;
 
 	ASIGameModeBase();
 	virtual void BeginPlay();
