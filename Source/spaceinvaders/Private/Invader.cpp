@@ -1,10 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Kismet/GameplayStatics.h"
 
 #include "Invader.h"
-#include "InvaderMovementComponent.h"
-#include "SIGameModeBase.h"
+
 // Sets default values
 AInvader::AInvader()
 {
@@ -43,12 +41,17 @@ AInvader::AInvader()
 	this->boundOrigin = meshBounds.Origin;
 	this->boundRadius = meshBounds.SphereRadius;
 
+	
+
 }
 
 // Called when the game starts or when spawned
 void AInvader::BeginPlay()
 {
 	Super::BeginPlay();
+	// Bullet template for spawning
+	this->bulletTemplate = NewObject<ABullet>();
+	this->bulletTemplate->bulletType = BulletType::INVADER;
 	
 }
 
@@ -56,7 +59,33 @@ void AInvader::BeginPlay()
 void AInvader::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	this->timeFromLastShot += DeltaTime;
+	
+	// Fire?
+	float val = FMath::RandRange(0.0f, 1.0f);
+	if (val < (1.0-FMath::Exp(-fireRate*this->timeFromLastShot))) {
+			Fire();
+			
+	}
 
+	
+	
+
+}
+
+void AInvader::Fire() {
+	FVector spawnLocation = GetActorLocation();
+	FRotator spawnRotation = GetActorRotation();
+	ABullet* spawnedBullet;
+	if (this->bulletTemplate) {
+	this->bulletTemplate->velocity = bulletVelocity;
+	this->bulletTemplate->dir = GetActorForwardVector();
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParameters.Template = this->bulletTemplate;
+	spawnedBullet = (ABullet*)GetWorld()->SpawnActor<ABullet>(spawnLocation, spawnRotation, spawnParameters);
+	this->timeFromLastShot = 0.0f;
+	}
 }
 
 //Getters and setters
@@ -73,7 +102,7 @@ float AInvader::getRadius() {
 
 void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 	// Debug
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
 	FName actorTag;
 	
 	
@@ -87,6 +116,16 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 			MyGameMode->SquadOnRightSide.ExecuteIfBound();
 		else if (OtherActor->ActorHasTag(downSideTag))
 			MyGameMode->SquadOnDownSide.ExecuteIfBound();
+		// Invader destruction
+		if (OtherActor->IsA(ABullet::StaticClass())) {
+			ABullet* bullet = Cast<ABullet>(OtherActor);
+			if (bullet->bulletType == BulletType::PLAYER) {
+				GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Invader %d killed"), this->positionInSquad));
+				OtherActor->Destroy();
+				MyGameMode->InvaderDestroyed.ExecuteIfBound(this->positionInSquad);
+				Destroy();
+			}
+		}
 
 
 	}

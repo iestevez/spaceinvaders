@@ -4,8 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameMode.h"
+
+#include "SpaceInvader.h"
 #include "Invader.h"
+#include "InvaderMovementComponent.h"
+#include "SIGameModeBase.h"
 #include "InvaderSquad.generated.h"
+
+//Forward declarations
+
+class ASIGameModeBase;
+
 
 UCLASS()
 class SPACEINVADERS_API AInvaderSquad : public AActor
@@ -20,9 +31,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 
 public:
+	UPROPERTY()
+		USceneComponent* Root;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 		float horizontalVelocity = 1000.0f;
@@ -36,6 +50,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool isXHorizontal = true;
 
+	UPROPERTY()
+		AInvader* invaderTemplate;
+
 	UFUNCTION()
 		void SquadOnLeftSide();
 
@@ -48,6 +65,9 @@ public:
 	UFUNCTION()
 		void SquadFinishesDown();
 
+	UFUNCTION()
+		void RemoveInvader(int32 ind);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -58,8 +78,8 @@ public:
 
 
 private:
-	FVector startPoint;
-	FVector endPoint;
+	ASIGameModeBase* MyGameMode;
+
 	int32 nRows;
 	int32 nCols;
 	int32 numberOfMembers;
@@ -69,8 +89,6 @@ private:
 
 	static const int32 defaultNRows = 5;
 	static const int32 defaultNCols = 7;
-	static  FVector defaultStartPoint;
-	static FVector defaultEndPoint;
 	static  constexpr const float defaultVelocity = 1.0f;
 	static  constexpr const float defaultExtraSeparation = 0.0f;
 

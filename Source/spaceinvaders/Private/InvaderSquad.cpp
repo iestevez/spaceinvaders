@@ -1,12 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/GameMode.h"
 #include "InvaderSquad.h"
-#include "Invader.h"
-#include "InvaderMovementComponent.h"
-#include "SIGameModeBase.h"
+
 
 
 
@@ -15,20 +11,22 @@ AInvaderSquad::AInvaderSquad()
 	, nCols(AInvaderSquad::defaultNCols)
 	, velocity(AInvaderSquad::defaultVelocity)
 	, direction(1)
-	, startPoint(AInvaderSquad::defaultStartPoint)
-	, endPoint(AInvaderSquad::defaultEndPoint)
 	, extraSeparation(AInvaderSquad::defaultExtraSeparation)
 	, isXHorizontal {false}
 	, numberOfMembers {nRows*nCols}
 
 {
+	// Create Components in actor
+
+	Root = CreateDefaultSubobject<USceneComponent>("Root");
+	RootComponent = Root; // We need a RootComponent to have a base transform
 	Initialize();
 
 }
 
 void AInvaderSquad::Initialize() {
 	PrimaryActorTick.bCanEverTick = true;
-
+	invaderTemplate = NewObject<AInvader>(); // template for spawning
 }
 
 // Called when the game starts or when spawned
@@ -36,7 +34,7 @@ void AInvaderSquad::BeginPlay()
 {
 	Super::BeginPlay();
 	UWorld* TheWorld = GetWorld();
-	ASIGameModeBase* MyGameMode;
+	
 	// Bind to delegates
 	if (TheWorld != nullptr) {
 		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
@@ -47,30 +45,49 @@ void AInvaderSquad::BeginPlay()
 			MyGameMode->SquadOnLeftSide.BindUObject(this, &AInvaderSquad::SquadOnLeftSide);
 			MyGameMode->SquadFinishesDown.BindUObject(this, &AInvaderSquad::SquadFinishesDown);
 			MyGameMode->SquadOnDownSide.BindUObject(this, &AInvaderSquad::SquadOnDownSide);
+			MyGameMode->InvaderDestroyed.BindUObject(this, &AInvaderSquad::RemoveInvader);
 		}
 	}
 	
 	//Spawn Invaders
 	
-	FVector spawnLocation=this->startPoint;
+	FVector actorLocation = GetActorLocation();
+	FVector spawnLocation= actorLocation;
+	FRotator spawnRotation = FRotator(0.0f, 180.0f, 0.0f); // Invader Forward is oposite to Player Forward (Yaw rotation)
+	FActorSpawnParameters spawnParameters;
+	int32 count = 0;
 	
 	for (int i = 0; i < this->nCols; i++)
 	{
 
 		for (int j = 0; j < this->nRows; j++)
 		{
-
+			invaderTemplate->positionInSquad = count;
 			AInvader* spawnedInvader;
-			spawnedInvader = (AInvader*)GetWorld()->SpawnActor(AInvader::StaticClass(), &spawnLocation);
+			spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			spawnParameters.Template = invaderTemplate;
+			spawnedInvader = GetWorld()->SpawnActor<AInvader>(spawnLocation,spawnRotation,spawnParameters);
+			spawnedInvader->positionInSquad = count;
+			++count;
 			SquadMembers.Add(spawnedInvader);
 			spawnLocation.X += AInvader::boundRadius * 2 + this->extraSeparation;
 		}
-		spawnLocation.X = this->startPoint.X;
+		spawnLocation.X = actorLocation.X;
 
 		spawnLocation.Y += AInvader::boundRadius * 2 + this->extraSeparation;
 	}
 
+	this->state = InvaderMovementType::RIGHT;
+
 	
+}
+
+void AInvaderSquad::Destroyed() {
+	Super::Destroyed();
+	for (AInvader* invader : SquadMembers) {
+		if (invader != nullptr)
+			invader->Destroy();
+	}
 }
 
 // Called every frame
@@ -84,7 +101,7 @@ void AInvaderSquad::Tick(float DeltaTime)
 void AInvaderSquad::UpdateSquadState() {
 	for (auto invader : SquadMembers) {
 		//------------------------------------
-		if (invader) {
+		if (invader) { // very important, first nullptr is checked!.
 			// First, we get de movement component
 			UInvaderMovementComponent* imc = (UInvaderMovementComponent*) invader->GetComponentByClass(UInvaderMovementComponent::StaticClass());
 			// Now, its state is updated
@@ -135,13 +152,18 @@ void AInvaderSquad::SquadFinishesDown() {
 
 void AInvaderSquad::SquadOnDownSide() {
 	
+	if (MyGameMode != nullptr)
+		MyGameMode->SquadSuccessful.ExecuteIfBound();
 
+}
 
+void AInvaderSquad::RemoveInvader(int32 ind) {
+	SquadMembers[ind] = nullptr;
 }
 
 
 
 // Static Members Initialization
-FVector AInvaderSquad::defaultStartPoint = FVector(300.0f, -1800.0f, 0.0f);
-FVector AInvaderSquad::defaultEndPoint = FVector(500.0f, 500.0f, 0.0f);
+//FVector AInvaderSquad::defaultStartPoint = FVector(300.0f, -1800.0f, 0.0f);
+//FVector AInvaderSquad::defaultEndPoint = FVector(500.0f, 500.0f, 0.0f);//
 

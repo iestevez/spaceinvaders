@@ -2,8 +2,7 @@
 
 
 #include "SIPlayerController.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
+
 
 ASIPlayerController::ASIPlayerController()
 	: m_mainCameraTag("MainCamera")

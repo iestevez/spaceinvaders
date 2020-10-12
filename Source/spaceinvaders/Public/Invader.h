@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Engine/CollisionProfile.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+
+#include "SpaceInvader.h"
 #include "InvaderMovementComponent.h"
+//#include "SIGameModeBase.h"
 #include "Invader.generated.h"
 
 UCLASS()
@@ -28,11 +31,24 @@ public:
 	UPROPERTY()
 		UBoxComponent* TriggerBox;
 
+	UPROPERTY()
+		float fireRate = 0.0001f;
+
+	UPROPERTY()
+		float bulletVelocity = 3000.0f;
+
+	UPROPERTY()
+		ABullet* bulletTemplate;
+	
 	UFUNCTION()
 		virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
+
+
 	// Sets default values for this actor's properties
 	AInvader();
+
+	void Fire();
 
 protected:
 	// Called when the game starts or when spawned
@@ -47,8 +63,12 @@ public:
 	static  UStaticMesh* staticMesh;
 	static FVector boundOrigin;
 	static float  boundRadius;
+	int32 positionInSquad = 0;
 
 private:
+
+	
+	float timeFromLastShot=0.0f;
 	
 	
 	static constexpr const TCHAR* defaultStaticMeshName = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
