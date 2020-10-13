@@ -34,10 +34,7 @@ public:
 
 	UPROPERTY()
 		FVector startPoint;
-
-	UPROPERTY()
-		FVector endPoint;
-
+		
 	UPROPERTY()
 		int32 nInvaderRows;
 
@@ -46,9 +43,7 @@ public:
 
 	UPROPERTY()
 		int32 nRounds = 0;
-
-	
-	
+		
 	UPROPERTY(EditAnyWhere, Category="Game parameters")
 		int32 pointsPerInvader = 1000;
 
@@ -70,7 +65,7 @@ public:
 	FStandardDelegateSignature SquadDissolved;
 	FStandardDelegateSignature SquadSuccessful;
 	FOneParamMulticastDelegateSignature InvaderDestroyed;
-	FStandardDelegateSignature PlayerDestroyed;
+	
 	FOneParamDelegateSignature NewSquad;
 	FStandardDelegateSignature PlayerZeroLifes;
 

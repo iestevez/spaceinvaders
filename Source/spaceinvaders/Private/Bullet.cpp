@@ -28,20 +28,7 @@ ABullet::ABullet()
 
 	Mesh->AttachTo(Root);
 	TriggerBox->AttachTo(Mesh);
-	/*
-	UWorld* TheWorld = GetWorld();
-	if (TheWorld != nullptr) {
-		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
-		MyGameMode = Cast<ASIGameModeBase>(GameMode);
-	}
-	if (MyGameMode) {
-		isXHorizontal = MyGameMode.isXHorizontal;
-	}
-	if (isXHorizontal)
-		dir = FVector(0.0f, 1.0f, 0.0f);
-	else
-		dir = FVector(1.0f, 0.0f, 0.0f);
-		*/
+	
 }
 
 // Called when the game starts or when spawned
@@ -65,7 +52,7 @@ void ABullet::Tick(float DeltaTime)
 
 void ABullet::NotifyActorBeginOverlap(AActor* OtherActor) {
 	// Debug
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
 	for (FName tag : autoDestroyTags)
 		if (OtherActor->ActorHasTag(tag))
 			Destroy();

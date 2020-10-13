@@ -9,7 +9,6 @@
 
 #include "SpaceInvader.h"
 #include "InvaderMovementComponent.h"
-//#include "SIGameModeBase.h"
 #include "Invader.generated.h"
 
 UCLASS()

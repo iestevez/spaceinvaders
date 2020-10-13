@@ -159,11 +159,11 @@ void AInvaderSquad::SquadOnDownSide() {
 
 void AInvaderSquad::RemoveInvader(int32 ind) {
 	SquadMembers[ind] = nullptr;
+	--this->numberOfMembers;
+	if (this->numberOfMembers == 0) {
+		if (MyGameMode != nullptr) {
+			MyGameMode->SquadDissolved.ExecuteIfBound(); // parameter larger than 0 to avoid finishing game!
+		}
+	}
 }
-
-
-
-// Static Members Initialization
-//FVector AInvaderSquad::defaultStartPoint = FVector(300.0f, -1800.0f, 0.0f);
-//FVector AInvaderSquad::defaultEndPoint = FVector(500.0f, 500.0f, 0.0f);//
 

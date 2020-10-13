@@ -31,8 +31,6 @@ AInvader::AInvader()
 	if(AInvader::staticMesh!=nullptr)
 		Mesh->SetStaticMesh(AInvader::staticMesh);
 
-	//Mesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-	
 	Mesh->AttachTo(Root);
 	TriggerBox->AttachTo(Mesh);
 	AddOwnedComponent(Movement); // Because UInvaderMovementComponent is only an Actor Component and not a Scene Component can't Attach To.
@@ -63,11 +61,9 @@ void AInvader::Tick(float DeltaTime)
 	
 	// Fire?
 	float val = FMath::RandRange(0.0f, 1.0f);
-	if (val < (1.0-FMath::Exp(-fireRate*this->timeFromLastShot))) {
+	if (val < (1.0-FMath::Exp(-fireRate*this->timeFromLastShot))) 
 			Fire();
-			
-	}
-
+	
 	
 	
 
@@ -102,7 +98,7 @@ float AInvader::getRadius() {
 
 void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 	// Debug
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
 	FName actorTag;
 	
 	

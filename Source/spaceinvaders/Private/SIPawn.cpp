@@ -26,7 +26,6 @@ void ASIPawn::BeginPlay()
 	if (TheWorld != nullptr) {
 		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
 		ASIGameModeBase* MyGameMode = Cast<ASIGameModeBase>(GameMode);
-		MyGameMode->PlayerDestroyed.BindUObject(this, &ASIPawn::OnPlayerDestroyed);
 		MyGameMode->InvaderDestroyed.AddUObject(this, &ASIPawn::OnInvaderDestroyed);
 		MyGameMode->SquadSuccessful.BindUObject(this, &ASIPawn::OnSquadSuccessful);
 		MyGameMode->SquadDissolved.BindUObject(this, &ASIPawn::OnSquadDissolved);
@@ -47,7 +46,6 @@ void ASIPawn::Tick(float DeltaTime)
 // Called to bind functionality to input
 void ASIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	//Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAxis(TEXT("SIRight"), this, &ASIPawn::OnMove);
 	PlayerInputComponent->BindAction(TEXT("SIFire"), IE_Pressed, this, &ASIPawn::OnFire);
 
@@ -55,17 +53,17 @@ void ASIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ASIPawn::OnMove(float value) {
 	float deltaTime = GetWorld()->GetDeltaSeconds();
-	//FVector location = GetActorLocation();
+	
 	float delta = velocity * value * deltaTime;
 	FVector dir;
 	if (isXHorizontal)
 		dir = FVector(1.0f, 0.0f, 0.0f);
-	//location.X += delta;
+	
 	else
 		dir = FVector(0.0f, 1.0f, 0.0f);
-	//	location.Y += delta;
+	
 	AddMovementInput(dir, delta);
-	//SetActorLocation(location);
+	
 
 }
 
@@ -79,12 +77,7 @@ void ASIPawn::OnFire() {
 	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnParameters.Template = bulletTemplate;
 	spawnedBullet = (ABullet*)GetWorld()->SpawnActor<ABullet>(spawnLocation,spawnRotation,spawnParameters);
-	/*
-	spawnedBullet = (ABullet*)GetWorld()->SpawnActor(ABullet::StaticClass(), &spawnLocation);
-	spawnedBullet->bulletType = BulletType::PLAYER;
-	spawnedBullet->velocity = bulletVelocity;
-	spawnedBullet->dir = GetActorForwardVector();
-	*/
+	
 }
 
 
@@ -100,7 +93,7 @@ int32 ASIPawn::GetPlayerLifes()
 
 void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 	// Debug
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
 	FName actorTag;
 
 
@@ -111,9 +104,9 @@ void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 		if (OtherActor->IsA(ABullet::StaticClass())) {
 			ABullet* bullet = Cast<ABullet>(OtherActor);
 			if (bullet->bulletType == BulletType::INVADER) {
-				GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Player killed")));
+				//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Player killed")));
 				OtherActor->Destroy();
-				MyGameMode->PlayerDestroyed.ExecuteIfBound();
+				OnPlayerDestroyed();
 				
 			}
 		}
@@ -122,6 +115,18 @@ void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 	}
 
 }
+
+void ASIPawn::OnPlayerDestroyed() {
+	UWorld* TheWorld;
+	TheWorld = GetWorld();
+	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	if (MyGame) {
+		--this->playerLifes;
+		if (this->playerLifes == 0)
+			MyGame->PlayerZeroLifes.ExecuteIfBound();
+	}
+}
+
 
 // Delegate responses:
 void ASIPawn::OnInvaderDestroyed(int32 id) {
@@ -133,19 +138,6 @@ void ASIPawn::OnInvaderDestroyed(int32 id) {
 	}
 }
 
-void ASIPawn::OnPlayerDestroyed() {
-	UWorld* TheWorld;
-	TheWorld = GetWorld();
-	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	if (MyGame) {
-		--this->playerLifes;
-		if(this->playerLifes==0)
-			MyGame->PlayerZeroLifes.ExecuteIfBound();
-	}
-	
-	
-
-}
 
 void ASIPawn::OnSquadSuccessful() {
 	UWorld* TheWorld;
