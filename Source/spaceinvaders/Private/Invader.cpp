@@ -122,7 +122,7 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 			if (bullet->bulletType == BulletType::PLAYER) {
 				GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Invader %d killed"), this->positionInSquad));
 				OtherActor->Destroy();
-				MyGameMode->InvaderDestroyed.ExecuteIfBound(this->positionInSquad);
+				MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
 				Destroy();
 			}
 		}

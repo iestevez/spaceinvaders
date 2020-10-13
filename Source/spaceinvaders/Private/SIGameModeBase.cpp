@@ -13,6 +13,7 @@ ASIGameModeBase::ASIGameModeBase()
 	DefaultPawnClass = ASIPawn::StaticClass();
 	PlayerControllerClass = ASIPlayerController::StaticClass();
 	InvaderSquadClass = AInvaderSquad::StaticClass();
+
 	
 }
 
@@ -26,9 +27,17 @@ void ASIGameModeBase::BeginPlay() {
 	this->spawnedInvaderSquad=GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation);
 
 	// Delegate bindings:
-	ASIGameModeBase::SquadSuccessful.BindUObject(this, &ASIGameModeBase::OnSquadSuccessful);
-	ASIGameModeBase::SquadDissolved.BindUObject(this, &ASIGameModeBase::OnSquadDissolved);
-	ASIGameModeBase::PlayerDestroyed.BindUObject(this, &ASIGameModeBase::OnPlayerDestroyed);
+	this->NewSquad.BindUObject(this, &ASIGameModeBase::OnNewSquad);
+	this->PlayerZeroLifes.BindUObject(this, &ASIGameModeBase::OnPlayerZeroLifes);
+
+	// Create and make the hud vissible
+
+	if (SIHUDClass != nullptr) {
+		hudWidget = CreateWidget<UUserWidget>(GetWorld(), SIHUDClass);
+		if (hudWidget != nullptr)
+			hudWidget->AddToViewport();
+	}
+
 	
 }
 
@@ -49,31 +58,19 @@ void ASIGameModeBase::EndGame() {
 	}
 }
 
-void ASIGameModeBase::OnSquadSuccessful() {
-   --this->playerLifes;
-   
-   if (this->playerLifes > 0)
-	   RegenerateSquad();
-   else
-	   EndGame();
+
+
+
+void ASIGameModeBase::OnPlayerZeroLifes() {
+	EndGame();
 }
 
-void ASIGameModeBase::OnSquadDissolved() {
-	++this->ASIGameModeBase::nRounds;
-	ASIGameModeBase::RegenerateSquad();
-}
-
-void ASIGameModeBase::OnInvaderDestroyed() {
-
-}
-
-void ASIGameModeBase::OnPlayerDestroyed() {
-	--this->playerLifes;
-	if (this->playerLifes == 0)
-		EndGame();
-	else
+void ASIGameModeBase::OnNewSquad(int32 lifes) {
+	if (lifes > 0)
 		RegenerateSquad();
-
+	else
+		EndGame();
 }
+
 
 

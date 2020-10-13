@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Blueprint/UserWidget.h"
 //#include "SpaceInvader.h"
 #include "SIPawn.h"
 #include "SIPlayerController.h"
@@ -14,11 +15,10 @@
  * 
  */
 
-// Forward Declarations
-//class AInvaderSquad;
 
 // Delegates of this game:
 DECLARE_DELEGATE(FStandardDelegateSignature)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOneParamMulticastDelegateSignature, int32);
 DECLARE_DELEGATE_OneParam(FOneParamDelegateSignature, int32)
 
 
@@ -47,14 +47,13 @@ public:
 	UPROPERTY()
 		int32 nRounds = 0;
 
-	UPROPERTY()
-		int32 playerLifes = 2;
 	
-	UPROPERTY()
+	
+	UPROPERTY(EditAnyWhere, Category="Game parameters")
 		int32 pointsPerInvader = 1000;
 
-	UPROPERTY()
-		int32 playerPoints = 0;
+	UPROPERTY(EditAnywhere, Category = "Game parameters")
+		int32 pointsPerSquad = 10000;
 
 	UPROPERTY()
 		bool isXHorizontal = true;
@@ -70,8 +69,10 @@ public:
 	FStandardDelegateSignature SquadFinishesDown;
 	FStandardDelegateSignature SquadDissolved;
 	FStandardDelegateSignature SquadSuccessful;
-	FOneParamDelegateSignature InvaderDestroyed;
+	FOneParamMulticastDelegateSignature InvaderDestroyed;
 	FStandardDelegateSignature PlayerDestroyed;
+	FOneParamDelegateSignature NewSquad;
+	FStandardDelegateSignature PlayerZeroLifes;
 
 	ASIGameModeBase();
 
@@ -79,10 +80,17 @@ public:
 
 protected:
 	virtual void BeginPlay();
-	void OnSquadSuccessful();
-	void OnSquadDissolved();
-	void OnInvaderDestroyed();
-	void OnPlayerDestroyed();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BlueprintProtected="true"))
+		TSubclassOf<class UUserWidget> SIHUDClass;
+
+	UPROPERTY()
+		class UUserWidget* hudWidget;
+	
+	// Delegate bindings
+	void OnNewSquad(int32 lifes);
+	void OnPlayerZeroLifes();
+
 private:
 	UPROPERTY()
 		AActor* spawnedInvaderSquad;

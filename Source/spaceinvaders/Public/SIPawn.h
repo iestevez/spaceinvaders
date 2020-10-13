@@ -27,6 +27,12 @@ public:
 	UPROPERTY()
 		ABullet* bulletTemplate; // used as template for spawning
 
+	UFUNCTION(BlueprintPure, Category = "Player")
+		int32 GetPlayerPoints();
+
+	UFUNCTION(BlueprintPure, Category = "Player")
+		int32 GetPlayerLifes();
+
 	UFUNCTION()
 		virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	// Sets default values for this pawn's properties
@@ -35,6 +41,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	void OnInvaderDestroyed(int32 id);
+	void OnPlayerDestroyed();
+	void OnSquadSuccessful();
+	void OnSquadDissolved();
+	void OnMove(float value);
+	void OnFire();
 
 public:	
 	// Called every frame
@@ -43,10 +55,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void OnMove(float value);
-
-	void OnFire();
+	
 
 private:
+
+	UPROPERTY(EditAnywhere,Category="Player")
+		int32 playerPoints = 0;
+
+	UPROPERTY(EditAnywhere, Category= "Player")
+		int32 playerLifes = 2;
 	
 };

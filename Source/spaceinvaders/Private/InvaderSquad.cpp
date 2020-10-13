@@ -45,7 +45,7 @@ void AInvaderSquad::BeginPlay()
 			MyGameMode->SquadOnLeftSide.BindUObject(this, &AInvaderSquad::SquadOnLeftSide);
 			MyGameMode->SquadFinishesDown.BindUObject(this, &AInvaderSquad::SquadFinishesDown);
 			MyGameMode->SquadOnDownSide.BindUObject(this, &AInvaderSquad::SquadOnDownSide);
-			MyGameMode->InvaderDestroyed.BindUObject(this, &AInvaderSquad::RemoveInvader);
+			MyGameMode->InvaderDestroyed.AddUObject(this, &AInvaderSquad::RemoveInvader);
 		}
 	}
 	

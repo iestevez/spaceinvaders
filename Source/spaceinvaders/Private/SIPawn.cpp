@@ -21,15 +21,19 @@ ASIPawn::ASIPawn()
 void ASIPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	/**
+	
 	UWorld* TheWorld = GetWorld();
 	if (TheWorld != nullptr) {
 		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
-		MyGameMode = Cast<ASIGameModeBase>(GameMode);
-
+		ASIGameModeBase* MyGameMode = Cast<ASIGameModeBase>(GameMode);
+		MyGameMode->PlayerDestroyed.BindUObject(this, &ASIPawn::OnPlayerDestroyed);
+		MyGameMode->InvaderDestroyed.AddUObject(this, &ASIPawn::OnInvaderDestroyed);
+		MyGameMode->SquadSuccessful.BindUObject(this, &ASIPawn::OnSquadSuccessful);
+		MyGameMode->SquadDissolved.BindUObject(this, &ASIPawn::OnSquadDissolved);
 		
 	}
-	*/
+	
+
 	
 }
 
@@ -84,6 +88,16 @@ void ASIPawn::OnFire() {
 }
 
 
+int32 ASIPawn::GetPlayerPoints()
+{
+	return this->playerPoints;
+}
+
+int32 ASIPawn::GetPlayerLifes()
+{
+	return int32(this->playerLifes);
+}
+
 void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 	// Debug
 	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
@@ -108,3 +122,48 @@ void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 	}
 
 }
+
+// Delegate responses:
+void ASIPawn::OnInvaderDestroyed(int32 id) {
+	UWorld* TheWorld;
+	TheWorld = GetWorld();
+	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	if (MyGame) {
+		this->playerPoints += MyGame->pointsPerInvader;
+	}
+}
+
+void ASIPawn::OnPlayerDestroyed() {
+	UWorld* TheWorld;
+	TheWorld = GetWorld();
+	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	if (MyGame) {
+		--this->playerLifes;
+		if(this->playerLifes==0)
+			MyGame->PlayerZeroLifes.ExecuteIfBound();
+	}
+	
+	
+
+}
+
+void ASIPawn::OnSquadSuccessful() {
+	UWorld* TheWorld;
+	TheWorld = GetWorld();
+	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	if (MyGame) {
+		--this->playerLifes;
+		MyGame->NewSquad.ExecuteIfBound(this->playerLifes);
+	}
+}
+
+void ASIPawn::OnSquadDissolved() {
+	UWorld* TheWorld;
+	TheWorld = GetWorld();
+	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	if (MyGame) {
+		this->playerPoints += MyGame->pointsPerSquad;
+		MyGame->NewSquad.ExecuteIfBound(this->playerLifes);
+	}
+}
+
