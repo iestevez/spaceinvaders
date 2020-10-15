@@ -29,34 +29,57 @@ class SPACEINVADERS_API ASIGameModeBase : public AGameModeBase
 
 public:
 
-	UPROPERTY()
+	//------------------------------------------------
+	//Spawned squad
+	//------------------------------------------------
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		UClass* InvaderSquadClass;
 
-	UPROPERTY()
-		FVector startPoint;
-		
-	UPROPERTY()
+	//------------------------------------------------
+	//Point where the squad is spawned at
+	//---------------------------------------------
+	UPROPERTY(EditAnyWhere,BlueprintReadWrite, Category= "Level Layout")
+		FVector spawnLocation = FVector(300.0f, -1800.0f, 150.0f);
+	
+	//------------------------------------------------
+	//Layout of the squad: number of rows
+	//-----------------------------------------------
+	UPROPERTY(EditAnyWhere,BlueprintReadWrite, Category = "Level Layout")
 		int32 nInvaderRows;
 
-	UPROPERTY()
+	//-----------------------------------------------
+	//Layout of the squad: number of columns
+	//-----------------------------------------------
+	UPROPERTY(EditAnyWhere,BlueprintReadWrite, Category = "Level Layout")
 		int32 nInvaderCols;
 
-	UPROPERTY()
-		int32 nRounds = 0;
-		
-	UPROPERTY(EditAnyWhere, Category="Game parameters")
-		int32 pointsPerInvader = 1000;
 
-	UPROPERTY(EditAnywhere, Category = "Game parameters")
-		int32 pointsPerSquad = 10000;
-
-	UPROPERTY()
+	//-------------------------------------------------
+	// Level is oriented with its horizontal dimension along the X axis
+	//-------------------------------------------------------
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category= "Level Layout")
 		bool isXHorizontal = true;
 
-	UPROPERTY()
-		FVector spawnLocation = FVector(300.0f,-1800.0f,150.0f);
 
+	//-----------------------------------------------
+	//Number of rounds to win the game (TODO)
+	//-----------------------------------------------
+	UPROPERTY(EditAnyWhere,BlueprintReadWrite,Category="Game parameters")
+		int32 nRounds = 0;
+	
+	//-----------------------------------------------
+	//Points to add up to the score due to invader destruction
+	//-----------------------------------------------
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite,Category="Game parameters")
+		int32 pointsPerInvader = 1000;
 
+	//-----------------------------------------------
+	//Add  this points up to the score when a squad is finished
+	//-----------------------------------------------
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game parameters")
+		int32 pointsPerSquad = 10000;
+
+	
 	// Delegates
 	FStandardDelegateSignature SquadOnLeftSide;
 	FStandardDelegateSignature SquadOnRightSide;
