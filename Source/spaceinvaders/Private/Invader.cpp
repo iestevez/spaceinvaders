@@ -56,10 +56,10 @@ void AInvader::BeginPlay()
 	else
 		bulletTemplate = NewObject<ABullet>();
 
-	bulletTemplate->bulletType = BulletType::PLAYER;
+	bulletTemplate->bulletType = BulletType::INVADER;
 
-	this->bulletTemplate = NewObject<ABullet>();
-	this->bulletTemplate->bulletType = BulletType::INVADER;
+	//this->bulletTemplate = NewObject<ABullet>();
+	//this->bulletTemplate->bulletType = BulletType::INVADER;
 	
 }
 

@@ -43,12 +43,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Squad movement")
 		bool isXHorizontal = true;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
+		TSubclassOf<class AInvader> invaderClass;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Squad Spawner")
 		class AInvader* invaderTemplate;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
-		class UStaticMesh* invaderStaticMesh;
-	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category="Squad Spawner")
 	int32 nRows;
 

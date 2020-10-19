@@ -22,7 +22,7 @@ public:
 	UPROPERTY()
 		class USceneComponent* Root;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
 		class UStaticMeshComponent* Mesh;
 
 

@@ -19,7 +19,7 @@ AInvaderSquad::AInvaderSquad()
 	, extraSeparation(AInvaderSquad::defaultExtraSeparation)
 	, isXHorizontal {false}
 	, numberOfMembers {nRows*nCols}
-	, invaderStaticMesh {nullptr}
+	
 
 {
 	// Create Components in actor
@@ -33,8 +33,6 @@ AInvaderSquad::AInvaderSquad()
 void AInvaderSquad::Initialize() {
 	PrimaryActorTick.bCanEverTick = true;
 	
-	invaderTemplate = NewObject<AInvader>(); // template for spawning
-	invaderTemplate->SetInvaderMesh(invaderStaticMesh);
 	
 }
 
@@ -42,6 +40,14 @@ void AInvaderSquad::Initialize() {
 void AInvaderSquad::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Set Invader Template with Default Value for invaderClass
+	if (invaderClass->IsChildOf<AInvader>())
+		invaderTemplate = NewObject<AInvader>(this, invaderClass->GetFName(), RF_NoFlags, invaderClass.GetDefaultObject());
+	else
+		invaderTemplate = NewObject<AInvader>();
+	//invaderTemplate = NewObject<AInvader>(); // template for spawning
+	//invaderTemplate->SetInvaderMesh(invaderStaticMesh);
 	UWorld* TheWorld = GetWorld();
 	
 	// Bind to delegates

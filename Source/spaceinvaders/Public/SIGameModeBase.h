@@ -33,7 +33,7 @@ public:
 	//Spawned squad
 	//------------------------------------------------
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-		UClass* InvaderSquadClass;
+		TSubclassOf<class AInvaderSquad> InvaderSquadClass;
 
 	//------------------------------------------------
 	//Point where the squad is spawned at
@@ -81,7 +81,7 @@ public:
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class AInvaderSquad* spawnedInvaderSquad;
+		AInvaderSquad* spawnedInvaderSquad;
 
 	
 	// Delegates

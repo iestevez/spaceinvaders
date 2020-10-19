@@ -68,10 +68,10 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere,Category="Player")
-		int32 playerPoints = 0;
+		int32 playerPoints;
 
 	UPROPERTY(EditAnywhere, Category= "Player")
-		int32 playerLifes = 2;
+		int32 playerLifes;
 
 
 	// Constant default values
