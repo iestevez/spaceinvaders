@@ -2,18 +2,24 @@
 
 
 #include "InvaderSquad.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameMode.h"
+#include "Invader.h"
+#include "InvaderMovementComponent.h"
+#include "SIGameModeBase.h"
 
 
 
 
 AInvaderSquad::AInvaderSquad() 
-	: nRows(AInvaderSquad::defaultNRows)
-	, nCols(AInvaderSquad::defaultNCols)
-	, velocity(AInvaderSquad::defaultVelocity)
-	, direction(1)
+	: nRows{ AInvaderSquad::defaultNRows }
+	, nCols{AInvaderSquad::defaultNCols}
+	, horizontalVelocity {AInvaderSquad::defaultHorizontalVelocity}
+	, verticalVelocity {AInvaderSquad::defaultVerticalVelocity}
 	, extraSeparation(AInvaderSquad::defaultExtraSeparation)
 	, isXHorizontal {false}
 	, numberOfMembers {nRows*nCols}
+	, invaderStaticMesh {nullptr}
 
 {
 	// Create Components in actor
@@ -26,7 +32,10 @@ AInvaderSquad::AInvaderSquad()
 
 void AInvaderSquad::Initialize() {
 	PrimaryActorTick.bCanEverTick = true;
+	
 	invaderTemplate = NewObject<AInvader>(); // template for spawning
+	invaderTemplate->SetInvaderMesh(invaderStaticMesh);
+	
 }
 
 // Called when the game starts or when spawned
@@ -56,25 +65,32 @@ void AInvaderSquad::BeginPlay()
 	FRotator spawnRotation = FRotator(0.0f, 180.0f, 0.0f); // Invader Forward is oposite to Player Forward (Yaw rotation)
 	FActorSpawnParameters spawnParameters;
 	int32 count = 0;
-	
+	AInvader* spawnedInvader;
+	float radiusX=0.0f;
+	float radiusY = 0.0f;
 	for (int i = 0; i < this->nCols; i++)
 	{
 
 		for (int j = 0; j < this->nRows; j++)
 		{
-			invaderTemplate->positionInSquad = count;
-			AInvader* spawnedInvader;
+			//invaderTemplate->SetPositionInSquad(count);
+			
 			spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			spawnParameters.Template = invaderTemplate;
 			spawnedInvader = GetWorld()->SpawnActor<AInvader>(spawnLocation,spawnRotation,spawnParameters);
-			spawnedInvader->positionInSquad = count;
+			spawnedInvader->SetPositionInSquad(count);
 			++count;
 			SquadMembers.Add(spawnedInvader);
-			spawnLocation.X += AInvader::boundRadius * 2 + this->extraSeparation;
+			float r = spawnedInvader->GetBoundRadius();
+			if (r > radiusX)
+				radiusX = r;
+			if (r > radiusY)
+				radiusY = r;
+			spawnLocation.X += radiusX * 2 + this->extraSeparation;
 		}
 		spawnLocation.X = actorLocation.X;
 
-		spawnLocation.Y += AInvader::boundRadius * 2 + this->extraSeparation;
+		spawnLocation.Y += radiusY * 2 + this->extraSeparation;
 	}
 
 	this->state = InvaderMovementType::RIGHT;

@@ -3,19 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/GameMode.h"
-
 #include "SpaceInvader.h"
-#include "Invader.h"
-#include "InvaderMovementComponent.h"
-#include "SIGameModeBase.h"
 #include "InvaderSquad.generated.h"
 
-//Forward declarations
-
-class ASIGameModeBase;
 
 
 UCLASS()
@@ -35,23 +25,57 @@ protected:
 
 
 public:
-	UPROPERTY()
-		USceneComponent* Root;
+	//--------------------------------------------------------
+	// Root Scene Component to modify location, rotation,...
+	//--------------------------------------------------------
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+		class USceneComponent* Root;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite,Category="Squad movement")
 		float horizontalVelocity = 1000.0f;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite,Category="Squad movement")
 		float verticalVelocity = 1000.0f;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite,Category="Squad movement")
 		InvaderMovementType state = InvaderMovementType::STOP;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Squad movement")
 		bool isXHorizontal = true;
 
-	UPROPERTY()
-		AInvader* invaderTemplate;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Squad Spawner")
+		class AInvader* invaderTemplate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
+		class UStaticMesh* invaderStaticMesh;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category="Squad Spawner")
+	int32 nRows;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
+	int32 nCols;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
+		float extraSeparation;
+	
+	UFUNCTION(BlueprintCallable)
+		void RemoveInvader(int32 ind);
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+	void Initialize();
+	
+	UFUNCTION(BlueprintCallable)
+	void UpdateSquadState();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		int32 numberOfMembers;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		class ASIGameModeBase* MyGameMode;
 
 	UFUNCTION()
 		void SquadOnLeftSide();
@@ -65,35 +89,21 @@ public:
 	UFUNCTION()
 		void SquadFinishesDown();
 
-	UFUNCTION()
-		void RemoveInvader(int32 ind);
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
+	InvaderMovementType previousState = InvaderMovementType::STOP;
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	void Initialize();
-	void ChangeDirection();
-
-	void UpdateSquadState();
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
+		TArray<class AInvader*> SquadMembers;
 
 
 private:
-	ASIGameModeBase* MyGameMode;
 
-	int32 nRows;
-	int32 nCols;
-	int32 numberOfMembers;
-	float extraSeparation;
-	float velocity;
-	int32 direction;
-
+	// Values for initializing defaults
 	static const int32 defaultNRows = 5;
 	static const int32 defaultNCols = 7;
-	static  constexpr const float defaultVelocity = 1.0f;
+	static  constexpr const float defaultHorizontalVelocity = 1000.0f;
+	static  constexpr const float defaultVerticalVelocity = 1000.0f;
 	static  constexpr const float defaultExtraSeparation = 0.0f;
 
-	InvaderMovementType previousState = InvaderMovementType::STOP;
-
-	TArray<AInvader*> SquadMembers;
 
 };

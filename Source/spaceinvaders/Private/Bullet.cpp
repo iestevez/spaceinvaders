@@ -2,7 +2,13 @@
 
 
 #include "Bullet.h"
+#include "GameFramework/Actor.h"
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
+#include "Engine/StaticMesh.h"
 
+//#include "SpaceInvader.h"
 // Sets default values
 ABullet::ABullet()
 	: bulletType {BulletType::PLAYER}
@@ -15,13 +21,9 @@ ABullet::ABullet()
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>("TriggerBoxComponent");
 
 	RootComponent = Root; // We need a RootComponent to have a base transform
+     SetBulletMesh();
 
-	if (ABullet::staticMesh == nullptr)
-		setBulletMesh();
-
-	if (ABullet::staticMesh != nullptr)
-		Mesh->SetStaticMesh(ABullet::staticMesh);
-
+	
 	//Bullets will overlap, blocking behaviour is not desirable
 	Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	TriggerBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
@@ -60,13 +62,23 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor) {
 
 }
 
-void ABullet::setBulletMesh(const TCHAR* path) {
+void ABullet::SetBulletMesh(UStaticMesh* staticMesh, FString path, FVector scale) {
+	const TCHAR* tpath;
+	tpath = ABullet::defaultStaticMeshPath; // default route
+	if (!Mesh) // No Mesh component
+		return;
 
-	auto MeshAsset = ConstructorHelpers::FObjectFinder<UStaticMesh>(path);
-	ABullet::staticMesh = MeshAsset.Object;
-	if (ABullet::staticMesh != nullptr)
-		Mesh->SetStaticMesh(ABullet::staticMesh);
-
+	if (!staticMesh) {
+		if (!path.IsEmpty())
+			tpath = *path;
+		auto MeshAsset = ConstructorHelpers::FObjectFinder<UStaticMesh>(tpath);
+		staticMesh = MeshAsset.Object;
+	}
+	if (staticMesh) {
+		Mesh->SetStaticMesh(staticMesh);
+		Mesh->SetRelativeScale3D(scale);
+		
+	}
 }
 
 

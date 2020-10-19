@@ -3,6 +3,15 @@
 
 #include "SIPawn.h"
 #include "SIGameModeBase.h"
+#include "Bullet.h"
+
+// UE4 HEaders
+
+#include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
+
+
+
 
 // Sets default values
 ASIPawn::ASIPawn()
@@ -10,17 +19,46 @@ ASIPawn::ASIPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	isXHorizontal = false;
-	bulletTemplate = NewObject<ABullet>();
-	bulletTemplate->bulletType = BulletType::PLAYER;
+	bulletClass = ABullet::StaticClass();
+	
+	SetStaticMesh();
 	
 
 
+}
+
+void ASIPawn::SetStaticMesh(UStaticMesh* staticMesh, FString path, FVector scale) {
+	UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
+	const TCHAR* tpath;
+	tpath = ASIPawn::defaultStaticMeshPath; // default route
+	if (!Mesh) // No Mesh component
+		return;
+
+	if (!staticMesh) {
+		if (!path.IsEmpty())
+			tpath = *path;
+		auto MeshAsset = ConstructorHelpers::FObjectFinder<UStaticMesh>(tpath);
+		staticMesh = MeshAsset.Object;
+	}
+	if (staticMesh) {
+		Mesh->SetStaticMesh(staticMesh);
+
+		Mesh->SetRelativeScale3D(FVector(1.0f,1.0f,1.0f));
+	}
 }
 
 // Called when the game starts or when spawned
 void ASIPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Generate a Bullet Template of the correct class
+	if (bulletClass->IsChildOf<ABullet>())
+		bulletTemplate = NewObject<ABullet>(this, bulletClass->GetFName(), RF_NoFlags, bulletClass.GetDefaultObject());
+	else
+		bulletTemplate = NewObject<ABullet>();
+
+	bulletTemplate->bulletType = BulletType::PLAYER;
 	
 	UWorld* TheWorld = GetWorld();
 	if (TheWorld != nullptr) {

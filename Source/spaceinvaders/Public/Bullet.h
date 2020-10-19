@@ -4,10 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Components/SceneComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/BoxComponent.h"
-#include "Engine/StaticMesh.h"
+
 
 #include "SpaceInvader.h"
 #include "Bullet.generated.h"
@@ -19,23 +16,23 @@ class SPACEINVADERS_API ABullet : public AActor
 	
 public:	
 
-	UPROPERTY()
+	UPROPERTY(EditInstanceOnly,BlueprintReadWrite)
 		BulletType bulletType = BulletType::PLAYER;
 
 	UPROPERTY()
-		USceneComponent* Root;
+		class USceneComponent* Root;
 
 	UPROPERTY()
-		UStaticMeshComponent* Mesh;
+		class UStaticMeshComponent* Mesh;
 
 
 	UPROPERTY()
-		UBoxComponent* TriggerBox;
+		class UBoxComponent* TriggerBox;
 
 	UPROPERTY()
 		FVector dir;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		float velocity;
 	// Sets default values for this actor's properties
 	ABullet();
@@ -50,12 +47,15 @@ public:
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
-	void setBulletMesh(const TCHAR* path = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	UFUNCTION(BlueprintCallable)
+	void SetBulletMesh(class UStaticMesh* staticMesh=nullptr,  FString path = TEXT(""),  FVector scale = FVector(1.0f,1.0f,1.0f));
 
 private:
 	
 	bool isXHorizontal = true;
-	UStaticMesh* staticMesh;
+	
 	FName autoDestroyTags[4] = { TEXT("downLimit"),TEXT("rightLimit"),TEXT("leftLimit"),TEXT("upLimit") };
+
+	static constexpr const TCHAR* defaultStaticMeshPath = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
 
 };

@@ -2,6 +2,14 @@
 
 
 #include "Invader.h"
+#include "SpaceInvader.h"
+#include "InvaderMovementComponent.h"
+#include "Bullet.h"
+
+// UE4 HEaders
+//#include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 AInvader::AInvader()
@@ -9,38 +17,31 @@ AInvader::AInvader()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Default values
+	
+	bulletClass = ABullet::StaticClass();
+	
+
+	// Inmutable FNames for limits
+	leftSideTag = FName(AInvader::leftSideTagString);
+	rightSideTag = FName(AInvader::rightSideTagString);
+	downSideTag = FName(AInvader::downSideTagString);
+		
 	// Create Components in actor
 
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
-
-	
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMeshComponent");
-	
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>("TriggerBoxComponent");
-
 	Movement = CreateDefaultSubobject<UInvaderMovementComponent>("InvaderMoveComponent");
-
-
 
 	RootComponent = Root; // We need a RootComponent to have a base transform
 
-
-	if (AInvader::staticMesh == nullptr) 
-		setInvaderMesh();
-
-	if(AInvader::staticMesh!=nullptr)
-		Mesh->SetStaticMesh(AInvader::staticMesh);
-
+	SetInvaderMesh();
+	
+	// Component hierarchy
 	Mesh->AttachTo(Root);
 	TriggerBox->AttachTo(Mesh);
 	AddOwnedComponent(Movement); // Because UInvaderMovementComponent is only an Actor Component and not a Scene Component can't Attach To.
-
-	FBoxSphereBounds meshBounds = Mesh->GetStaticMesh()->GetBounds();
-	this->boundOrigin = meshBounds.Origin;
-	this->boundRadius = meshBounds.SphereRadius;
-
-	
-
 }
 
 // Called when the game starts or when spawned
@@ -48,9 +49,28 @@ void AInvader::BeginPlay()
 {
 	Super::BeginPlay();
 	// Bullet template for spawning
+
+	// Generate a Bullet Template of the correct class
+	if (bulletClass->IsChildOf<ABullet>())
+		bulletTemplate = NewObject<ABullet>(this, bulletClass->GetFName(),RF_NoFlags,bulletClass.GetDefaultObject());
+	else
+		bulletTemplate = NewObject<ABullet>();
+
+	bulletTemplate->bulletType = BulletType::PLAYER;
+
 	this->bulletTemplate = NewObject<ABullet>();
 	this->bulletTemplate->bulletType = BulletType::INVADER;
 	
+}
+
+void AInvader::SetPositionInSquad(int32 index)
+{
+	this->positionInSquad = index;
+}
+
+int32 AInvader::GetPositionInSquad()
+{
+	return int32(this->positionInSquad);
 }
 
 // Called every frame
@@ -86,12 +106,12 @@ void AInvader::Fire() {
 
 //Getters and setters
 
-FVector AInvader::getOrigin() {
+FVector AInvader::GetBoundOrigin() {
 	return this->boundOrigin;
 
 }
 
-float AInvader::getRadius() {
+float AInvader::GetBoundRadius() {
 	return this->boundRadius;
 }
 
@@ -130,16 +150,29 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 
 
 
-// Static members initialization
 
-void AInvader::setInvaderMesh(const TCHAR* path) {
+void AInvader::SetInvaderMesh(UStaticMesh* newStaticMesh, const FString path, FVector scale ) {
+	const TCHAR* tpath;
+	tpath = AInvader::defaultStaticMeshName; // default route
+	if (!Mesh) // No Mesh component
+		return;
 
-	auto MeshAsset = ConstructorHelpers::FObjectFinder<UStaticMesh>(path);
-	AInvader::staticMesh = MeshAsset.Object;
+	if (!newStaticMesh) {
+		if (!path.IsEmpty())
+			tpath = *path;
+		auto MeshAsset = ConstructorHelpers::FObjectFinder<UStaticMesh>(tpath);
+		newStaticMesh = MeshAsset.Object;
+	}
+	if(newStaticMesh){
+	Mesh->SetStaticMesh(newStaticMesh);
+	Mesh->SetRelativeScale3D(scale);
+	FBoxSphereBounds meshBounds = Mesh->Bounds;
+	//FBoxSphereBounds meshBounds = newStaticMesh->GetBounds();
+	boundOrigin = meshBounds.Origin;
+	boundRadius = meshBounds.SphereRadius;
+	}
 }
 
 
-UStaticMesh* AInvader::staticMesh = nullptr;
 
-FVector AInvader::boundOrigin = FVector(0.0f, 0.0f, 0.0f);
-float AInvader::boundRadius = 0.0f;
+

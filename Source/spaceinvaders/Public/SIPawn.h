@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
-#include "Bullet.h"
+#include "Templates/SubclassOf.h"
+//#include "Bullet.h"
 //#include "SIGameModeBase.h"
 
 #include "SIPawn.generated.h"
@@ -24,6 +25,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool isXHorizontal = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		TSubclassOf<class ABullet> bulletClass;
+	
 	UPROPERTY()
 		ABullet* bulletTemplate; // used as template for spawning
 
@@ -39,6 +44,9 @@ public:
 	ASIPawn();
 
 protected:
+
+	UFUNCTION(BlueprintCallable)
+		void SetStaticMesh(class UStaticMesh* staticMesh = nullptr,  FString path = TEXT(""),  FVector scale = FVector(1.0f,1.0f,1.0f));
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void OnInvaderDestroyed(int32 id);
@@ -64,5 +72,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category= "Player")
 		int32 playerLifes = 2;
+
+
+	// Constant default values
+
+	static constexpr const TCHAR* defaultStaticMeshPath = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
 	
 };

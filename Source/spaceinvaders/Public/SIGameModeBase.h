@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "Blueprint/UserWidget.h"
+//#include "Blueprint/UserWidget.h"
 //#include "SpaceInvader.h"
-#include "SIPawn.h"
-#include "SIPlayerController.h"
+//#include "SIPawn.h"
+//#include "SIPlayerController.h"
 //#include "InvaderSquad.h"
 #include "SIGameModeBase.generated.h"
 
@@ -79,6 +79,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game parameters")
 		int32 pointsPerSquad = 10000;
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class AInvaderSquad* spawnedInvaderSquad;
+
 	
 	// Delegates
 	FStandardDelegateSignature SquadOnLeftSide;
@@ -102,18 +106,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BlueprintProtected="true"))
 		TSubclassOf<class UUserWidget> SIHUDClass;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UUserWidget* hudWidget;
+
+	UFUNCTION(BlueprintCallable)
+		void RegenerateSquad();
 	
 	// Delegate bindings
 	void OnNewSquad(int32 lifes);
 	void OnPlayerZeroLifes();
-
-private:
-	UPROPERTY()
-		AActor* spawnedInvaderSquad;
-
-	void RegenerateSquad();
-	
 
 };

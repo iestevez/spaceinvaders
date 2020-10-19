@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Kismet/GameplayStatics.h"
-#include "Components/BoxComponent.h"
+//#include "Kismet/GameplayStatics.h"
+//#include "Components/BoxComponent.h"
 
-#include "SpaceInvader.h"
-#include "InvaderMovementComponent.h"
+//#include "SpaceInvader.h"
+//#include "InvaderMovementComponent.h"
 #include "Invader.generated.h"
 
 UCLASS()
@@ -18,62 +18,104 @@ class SPACEINVADERS_API AInvader : public AActor
 
 public:
 
-	UPROPERTY()
-		USceneComponent* Root;
 
-	UPROPERTY()
-		UStaticMeshComponent* Mesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+		class USceneComponent* Root;
 
-	UPROPERTY()
-		UInvaderMovementComponent* Movement;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+		class UStaticMeshComponent* Mesh;
 
-	UPROPERTY()
-		UBoxComponent* TriggerBox;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+		class UInvaderMovementComponent* Movement;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+		class UBoxComponent* TriggerBox;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		float fireRate = 0.0001f;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		float bulletVelocity = 3000.0f;
 
-	UPROPERTY()
-		ABullet* bulletTemplate;
 	
 	UFUNCTION()
 		virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
+	UFUNCTION(BlueprintCallable)
+		float GetBoundRadius();
+
+	UFUNCTION(BlueprintCallable)
+		FVector GetBoundOrigin();
 
 
 	// Sets default values for this actor's properties
 	AInvader();
 
-	void Fire();
+	UFUNCTION(BlueprintCallable)
+		void Fire();
+
+	UFUNCTION(BlueprintCallable)
+		void SetPositionInSquad(int32 index);
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetPositionInSquad();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	//-------------------------------------------------------------------------------------
+	// Change static mesh of Mesh component
+	// @param staticMesh (UStaticMesh*,default=nullptr) Pointer to UStaticMesh
+	// @param path (FString, default=TEXT("")) Asset path
+	// ------------------------------------------------------------------------------------
+	UFUNCTION(BlueprintCallable)
+		void SetInvaderMesh(class UStaticMesh* staticMesh=nullptr, const FString path= TEXT(""), FVector scale=FVector(1.0f,1.0f,1.0f));
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	FVector getOrigin();
-	float getRadius();
-	static void setInvaderMesh(const TCHAR* path=AInvader::defaultStaticMeshName);
-	static  UStaticMesh* staticMesh;
-	static FVector boundOrigin;
-	static float  boundRadius;
-	int32 positionInSquad = 0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		TSubclassOf<class ABullet> bulletClass;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+		class ABullet* bulletTemplate;
+
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		//class  UStaticMesh* staticMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FVector boundOrigin;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float  boundRadius;
+
+	
 
 private:
+	UPROPERTY(VisibleAnywhere)
+		int32 positionInSquad = 0;
+	
+	UPROPERTY(VisibleInstanceOnly)
+		float timeFromLastShot=0.0f;
+	
+	UPROPERTY(VisibleAnywhere)
+		FName leftSideTag; 
+	
+	UPROPERTY(VisibleAnywhere)
+		FName rightSideTag; 
+	
+	UPROPERTY(VisibleAnywhere)
+		FName downSideTag; 
 
 	
-	float timeFromLastShot=0.0f;
-	
-	
+	// Static literals of the class
+
 	static constexpr const TCHAR* defaultStaticMeshName = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
-	FName leftSideTag = TEXT("leftLimit");
-	FName rightSideTag = TEXT("rightLimit");
-	FName downSideTag = TEXT("downLimit");
+	static constexpr const TCHAR* leftSideTagString = TEXT("leftLimit");
+	static constexpr const TCHAR* rightSideTagString = TEXT("rightLimit");
+	static constexpr const TCHAR* downSideTagString = TEXT("downLimit");
 	
 
 	

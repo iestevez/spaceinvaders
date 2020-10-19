@@ -3,6 +3,11 @@
 
 #include "SIGameModeBase.h"
 #include "InvaderSquad.h"
+#include "SIPawn.h"
+#include "SIPlayerController.h"
+
+//UE4 Engine headers
+#include "Blueprint/UserWidget.h"
 
 
 ASIGameModeBase::ASIGameModeBase()
@@ -23,8 +28,10 @@ void ASIGameModeBase::BeginPlay() {
 
 	//Spawn a squad of invaders
 	
-	
-	this->spawnedInvaderSquad=GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation);
+	if (InvaderSquadClass) {
+		this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
+	}
+
 
 	// Delegate bindings:
 	this->NewSquad.BindUObject(this, &ASIGameModeBase::OnNewSquad);
@@ -48,7 +55,7 @@ void ASIGameModeBase::RegenerateSquad() {
 		this->spawnedInvaderSquad->Destroy();
 	}
 	
-	this->spawnedInvaderSquad = GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation);
+	this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
 
 }
 
