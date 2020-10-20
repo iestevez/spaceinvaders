@@ -32,7 +32,7 @@ public:
 		class UBoxComponent* TriggerBox;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-		float fireRate = 0.0001f;
+		float fireRate;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		float bulletVelocity = 3000.0f;

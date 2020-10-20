@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Squad movement")
 		bool isXHorizontal = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Squad movement")
+		float freeJumpRate;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
 		TSubclassOf<class AInvader> invaderClass;
 
@@ -68,7 +71,7 @@ public:
 	void Initialize();
 	
 	UFUNCTION(BlueprintCallable)
-	void UpdateSquadState();
+	void UpdateSquadState(float delta);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -97,6 +100,9 @@ protected:
 
 
 private:
+
+	UPROPERTY(VisibleAnywhere)
+		float timeFromLastFreeJump;
 
 	// Values for initializing defaults
 	static const int32 defaultNRows = 5;

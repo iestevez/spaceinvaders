@@ -40,11 +40,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float descendingStep = 100.0f;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 numberOfTargetPoints;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+		void GenerateTargetPoints();
+
+	UFUNCTION(BlueprintCallable)
+		FTransform InterpolateWithTargetPoints(FTransform transform, float delta, float speed);
 	
 
 public:	
@@ -54,6 +61,9 @@ public:
 private:
 	InvaderMovementType previousState;
 	float descendingProgress = 0.0f;
+	int32 currentTargetPoint=0;
+	TArray<FTransform> targetPoints;
+	float finalAngle;
 
 	ASIGameModeBase* MyGameMode; // to call delegates
 

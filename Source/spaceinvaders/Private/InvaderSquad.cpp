@@ -19,6 +19,8 @@ AInvaderSquad::AInvaderSquad()
 	, extraSeparation(AInvaderSquad::defaultExtraSeparation)
 	, isXHorizontal {false}
 	, numberOfMembers {nRows*nCols}
+	, freeJumpRate{ 0.0001 }
+	, timeFromLastFreeJump {0.0}
 	
 
 {
@@ -116,26 +118,47 @@ void AInvaderSquad::Destroyed() {
 void AInvaderSquad::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UpdateSquadState();
+	UpdateSquadState(DeltaTime);
 
 }
 
-void AInvaderSquad::UpdateSquadState() {
+void AInvaderSquad::UpdateSquadState(float delta) {
+	
+	TArray<AInvader*> survivors;
+	
 	for (auto invader : SquadMembers) {
 		//------------------------------------
 		if (invader) { // very important, first nullptr is checked!.
+			
+			
 			// First, we get de movement component
 			UInvaderMovementComponent* imc = (UInvaderMovementComponent*) invader->GetComponentByClass(UInvaderMovementComponent::StaticClass());
+			
 			// Now, its state is updated
 			if (imc) {
+				if (imc->state != InvaderMovementType::FREEJUMP)
+					survivors.Emplace(invader);
 				imc->horizontalVelocity = horizontalVelocity;
 				imc->verticalVelocity = verticalVelocity;
 				imc->isXHorizontal = isXHorizontal;
-				imc->state = state;
+				if(imc->state!=InvaderMovementType::FREEJUMP) // The state of the squad is copied to the invader state (except for those in FREEJUMP)
+					imc->state = state;
 			}
 		}
 
 			//------------------------------------
+	}
+	this->timeFromLastFreeJump += delta;
+	float val = FMath::RandRange(0.0f, 1.0f);
+	int32 countSurvivors = survivors.Num();
+	if (countSurvivors>0 && val < (1.0 - FMath::Exp(-freeJumpRate * this->timeFromLastFreeJump))) {
+		int32 ind = FMath::RandRange(0, countSurvivors - 1); // Randomly select one of the living invaders
+		UInvaderMovementComponent* imc = (UInvaderMovementComponent*)survivors[ind]->GetComponentByClass(UInvaderMovementComponent::StaticClass());
+		if (imc) {
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s on FreeJump"), *(imc->GetName())));
+			survivors[ind]->fireRate *= 100;
+			imc->state = InvaderMovementType::FREEJUMP;
+		}
 	}
 }
 

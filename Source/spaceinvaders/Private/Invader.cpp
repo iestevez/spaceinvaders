@@ -42,6 +42,8 @@ AInvader::AInvader()
 	Mesh->AttachTo(Root);
 	TriggerBox->AttachTo(Mesh);
 	AddOwnedComponent(Movement); // Because UInvaderMovementComponent is only an Actor Component and not a Scene Component can't Attach To.
+
+	fireRate = 0.0001f;
 }
 
 // Called when the game starts or when spawned
@@ -130,8 +132,16 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 			MyGameMode->SquadOnLeftSide.ExecuteIfBound();
 		else if (OtherActor->ActorHasTag(rightSideTag))
 			MyGameMode->SquadOnRightSide.ExecuteIfBound();
-		else if (OtherActor->ActorHasTag(downSideTag))
-			MyGameMode->SquadOnDownSide.ExecuteIfBound();
+		else if (OtherActor->ActorHasTag(downSideTag)) {
+			// First, we get de movement component
+			UInvaderMovementComponent* imc = (UInvaderMovementComponent*)this->GetComponentByClass(UInvaderMovementComponent::StaticClass());
+			if(imc->state!=InvaderMovementType::FREEJUMP)
+				MyGameMode->SquadOnDownSide.ExecuteIfBound();
+			else {
+				MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
+				Destroy();
+			}
+		}
 		// Invader destruction
 		if (OtherActor->IsA(ABullet::StaticClass())) {
 			ABullet* bullet = Cast<ABullet>(OtherActor);
