@@ -55,7 +55,7 @@ public:
 		float freeJumpVelocity; // Velocity in the first stage of the free jump
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float factorVelocity;
+		float deltaAlphaInterpolation; //1/(Number of updates between two target points)
 
 	
 	
@@ -69,7 +69,7 @@ protected:
 		void GenerateTargetPoints();
 
 	UFUNCTION(BlueprintCallable)
-		FTransform InterpolateWithTargetPoints(FTransform transform, float covered, float delta, float speed);
+		FTransform InterpolateWithTargetPoints(FTransform transform, float covered);
 	
 
 public:	
@@ -84,6 +84,8 @@ private:
 	float descendingProgress = 0.0f; // Store progress in the Down state
 
 	// Free jump movement state variables:
+	FTransform originTransform;
+	float alphaInterpolation;
 	int32 currentTargetPoint=0; // It stores the index of the first reference pose (the other is currentTargetPoint+1)
 	float finalAngle; // Orientation of the invader to start the final attack
 
