@@ -4,14 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "SpaceInvader.h"
-#include "SIGameModeBase.h"
+
 #include "InvaderMovementComponent.generated.h"
 
 
-//Forward declarations
-//class ASIGameModeBase;
 
 
 
@@ -26,24 +23,45 @@ public:
 	UInvaderMovementComponent();
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		float horizontalVelocity=1000.0f;
+		float horizontalVelocity;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		float verticalVelocity = 1000.0f;
+		float verticalVelocity;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
-		InvaderMovementType state = InvaderMovementType::STOP;
+		InvaderMovementType state;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool isXHorizontal = true;
+		bool isXHorizontal;
+
+
+	// Down movement parameters:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float descendingStep = 100.0f;
+		float descendingStep; // Length of the descending step
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+
+	// Free jump parameters:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		TArray<FTransform> targetPoints; // The movement will be composed by interpolation using a sequence of reference poses stored in this array.
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		int32 numberOfTargetPoints;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float freeJumpRadius;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float freeJumpVelocity; // Velocity in the first stage of the free jump
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float deltaAlphaInterpolation; //1/(Number of updates between two target points)
+
+	
+	
 protected:
+
+	
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
@@ -51,7 +69,7 @@ protected:
 		void GenerateTargetPoints();
 
 	UFUNCTION(BlueprintCallable)
-		FTransform InterpolateWithTargetPoints(FTransform transform, float delta, float speed);
+		FTransform InterpolateWithTargetPoints(FTransform transform, float covered);
 	
 
 public:	
@@ -59,13 +77,20 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	InvaderMovementType previousState;
-	float descendingProgress = 0.0f;
-	int32 currentTargetPoint=0;
-	TArray<FTransform> targetPoints;
-	float finalAngle;
+	
+	InvaderMovementType previousState; // Store state in previous frame (to know when a state is beginning)
 
-	ASIGameModeBase* MyGameMode; // to call delegates
+	// Down movement state variables:
+	float descendingProgress = 0.0f; // Store progress in the Down state
+
+	// Free jump movement state variables:
+	FTransform originTransform;
+	float alphaInterpolation;
+	int32 currentTargetPoint=0; // It stores the index of the first reference pose (the other is currentTargetPoint+1)
+	float finalAngle; // Orientation of the invader to start the final attack
+
+	
+	class ASIGameModeBase* MyGameMode; // to call delegates
 
 		
 };

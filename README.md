@@ -1,4 +1,7 @@
 # spaceinvaders
 
 Developed with Unreal Engine 4
-This branch represents the part of the development already explained in the practical sessions.
+Development in progress
+draft braches show snapshots of different stages for educational purposes.
+development branch is work in progress and it could no even compile.
+
