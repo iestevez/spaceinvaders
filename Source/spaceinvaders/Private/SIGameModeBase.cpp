@@ -8,6 +8,7 @@
 
 //UE4 Engine headers
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ASIGameModeBase::ASIGameModeBase()
@@ -73,6 +74,8 @@ void ASIGameModeBase::EndGame() {
 	if (this->spawnedInvaderSquad != nullptr) {
 		this->spawnedInvaderSquad->Destroy();
 	}
+	UGameplayStatics::OpenLevel(this,FName("Menu"));
+	// Close level and open menu level
 }
 
 

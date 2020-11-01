@@ -2,9 +2,11 @@
 
 
 #include "Invader.h"
+#include "SIGameModeBase.h"
 #include "SpaceInvader.h"
 #include "InvaderMovementComponent.h"
 #include "Bullet.h"
+
 
 // UE4 HEaders
 //#include "GameFramework/Actor.h"
@@ -39,8 +41,8 @@ AInvader::AInvader()
 	SetInvaderMesh();
 	
 	// Component hierarchy
-	Mesh->AttachTo(Root);
-	TriggerBox->AttachTo(Mesh);
+	Mesh->AttachToComponent(Root,FAttachmentTransformRules::KeepWorldTransform);
+	TriggerBox->AttachToComponent(Mesh,FAttachmentTransformRules::KeepWorldTransform);
 	AddOwnedComponent(Movement); // Because UInvaderMovementComponent is only an Actor Component and not a Scene Component can't Attach To.
 
 	fireRate = 0.0001f;
@@ -52,6 +54,10 @@ void AInvader::BeginPlay()
 	Super::BeginPlay();
 	// Bullet template for spawning
 
+	FBoxSphereBounds meshBounds = Mesh->Bounds;
+	//FBoxSphereBounds meshBounds = newStaticMesh->GetBounds();
+	boundOrigin = meshBounds.Origin;
+	boundRadius = meshBounds.SphereRadius;
 	// Generate a Bullet Template of the correct class
 	if (bulletClass->IsChildOf<ABullet>())
 		bulletTemplate = NewObject<ABullet>(this, bulletClass->GetFName(),RF_NoFlags,bulletClass.GetDefaultObject());

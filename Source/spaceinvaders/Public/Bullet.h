@@ -54,7 +54,7 @@ private:
 	
 	bool isXHorizontal = true;
 	
-	FName autoDestroyTags[4] = { TEXT("downLimit"),TEXT("rightLimit"),TEXT("leftLimit"),TEXT("upLimit") };
+	FName autoDestroyTags[4] = { TEXT("downLimit"),TEXT("rightLimit"),TEXT("leftLimit"),TEXT("upperLimit") };
 
 	static constexpr const TCHAR* defaultStaticMeshPath = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
 

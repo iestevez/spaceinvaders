@@ -28,6 +28,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		TSubclassOf<class ABullet> bulletClass;
+
 	
 	UPROPERTY()
 		ABullet* bulletTemplate; // used as template for spawning
