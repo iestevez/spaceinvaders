@@ -54,6 +54,10 @@ void AInvader::BeginPlay()
 	Super::BeginPlay();
 	// Bullet template for spawning
 
+	FBoxSphereBounds meshBounds = Mesh->Bounds;
+	//FBoxSphereBounds meshBounds = newStaticMesh->GetBounds();
+	boundOrigin = meshBounds.Origin;
+	boundRadius = meshBounds.SphereRadius;
 	// Generate a Bullet Template of the correct class
 	if (bulletClass->IsChildOf<ABullet>())
 		bulletTemplate = NewObject<ABullet>(this, bulletClass->GetFName(),RF_NoFlags,bulletClass.GetDefaultObject());

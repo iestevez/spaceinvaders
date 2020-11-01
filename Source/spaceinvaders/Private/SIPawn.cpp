@@ -4,11 +4,13 @@
 #include "SIPawn.h"
 #include "SIGameModeBase.h"
 #include "Bullet.h"
-
+#include "Invader.h"
 // UE4 HEaders
 
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
+
 
 
 
@@ -23,7 +25,8 @@ ASIPawn::ASIPawn()
 	isXHorizontal = false;
 	bulletClass = ABullet::StaticClass();
 	
-	SetStaticMesh();
+	SetStaticMesh(); // Default mesh
+
 	
 
 
@@ -141,6 +144,8 @@ void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 	if (TheWorld != nullptr) {
 		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
 		ASIGameModeBase* MyGameMode = Cast<ASIGameModeBase>(GameMode);
+
+		// Collision with an enemy
 		if (OtherActor->IsA(ABullet::StaticClass())) {
 			ABullet* bullet = Cast<ABullet>(OtherActor);
 			if (bullet->bulletType == BulletType::INVADER) {
@@ -150,7 +155,13 @@ void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 				
 			}
 		}
+		// Collision with an invader
+		if (OtherActor->IsA(AInvader::StaticClass())) {
+			AInvader* invader = Cast<AInvader>(OtherActor);
+			OtherActor->Destroy();
+			OnPlayerDestroyed();
 
+		}
 
 	}
 
