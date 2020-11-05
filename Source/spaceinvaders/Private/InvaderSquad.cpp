@@ -208,6 +208,7 @@ void AInvaderSquad::RemoveInvader(int32 ind) {
 	if (this->numberOfMembers == 0) {
 		if (MyGameMode != nullptr) {
 			MyGameMode->SquadDissolved.ExecuteIfBound(); // parameter larger than 0 to avoid finishing game!
+			
 		}
 	}
 }
