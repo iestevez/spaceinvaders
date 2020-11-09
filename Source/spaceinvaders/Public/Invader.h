@@ -31,6 +31,11 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		class UBoxComponent* TriggerBox;
 
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UParticleSystem* PFXExplosion;
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 		float fireRate;
 
