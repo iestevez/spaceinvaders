@@ -25,7 +25,7 @@ ASIGameModeBase::ASIGameModeBase()
 	PlayerControllerClass = ASIPlayerController::StaticClass();
 	InvaderSquadClass = AInvaderSquad::StaticClass();
 
-	
+
 }
 
 void ASIGameModeBase::BeginPlay() {
@@ -55,11 +55,11 @@ void ASIGameModeBase::BeginPlay() {
 
 	// Create and make the hud vissible
 
-	if (SIHUDClass != nullptr) {
-		hudWidget = CreateWidget<UUserWidget>(GetWorld(), SIHUDClass);
-		if (hudWidget != nullptr)
-			hudWidget->AddToViewport();
-	}
+	//if (SIHUDClass != nullptr) {
+	//	hudWidget = CreateWidget<UUserWidget>(GetWorld(), SIHUDClass);
+	//	if (hudWidget != nullptr)
+	//		hudWidget->AddToViewport();
+	//}
 
 	
 }

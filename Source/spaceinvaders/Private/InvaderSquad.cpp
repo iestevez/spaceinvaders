@@ -155,7 +155,7 @@ void AInvaderSquad::UpdateSquadState(float delta) {
 		int32 ind = FMath::RandRange(0, countSurvivors - 1); // Randomly select one of the living invaders
 		UInvaderMovementComponent* imc = (UInvaderMovementComponent*)survivors[ind]->GetComponentByClass(UInvaderMovementComponent::StaticClass());
 		if (imc) {
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s on FreeJump"), *(imc->GetName())));
+			//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s on FreeJump"), *(imc->GetName())));
 			survivors[ind]->fireRate *= 100;
 			imc->state = InvaderMovementType::FREEJUMP;
 		}
