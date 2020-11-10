@@ -25,7 +25,7 @@ ASIGameModeBase::ASIGameModeBase()
 	PlayerControllerClass = ASIPlayerController::StaticClass();
 	InvaderSquadClass = AInvaderSquad::StaticClass();
 
-	
+
 }
 
 void ASIGameModeBase::BeginPlay() {
@@ -35,7 +35,12 @@ void ASIGameModeBase::BeginPlay() {
 	//Spawn a squad of invaders
 	
 	if (InvaderSquadClass) {
+		// Change defaults before Spawn
+		AInvaderSquad* squad = Cast<AInvaderSquad>(InvaderSquadClass->GetDefaultObject());
+		squad->nCols = nInvaderRows;
+		squad->nRows = nInvaderCols;
 		this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
+		
 		//Cast<AIvaderSquad>(this->spawnedInvaderSquad)->nRows = nInvaderRows;
 		//this->spawnedInvaderSquad->nCols = nInvaderCols;
 	
@@ -50,11 +55,11 @@ void ASIGameModeBase::BeginPlay() {
 
 	// Create and make the hud vissible
 
-	if (SIHUDClass != nullptr) {
-		hudWidget = CreateWidget<UUserWidget>(GetWorld(), SIHUDClass);
-		if (hudWidget != nullptr)
-			hudWidget->AddToViewport();
-	}
+	//if (SIHUDClass != nullptr) {
+	//	hudWidget = CreateWidget<UUserWidget>(GetWorld(), SIHUDClass);
+	//	if (hudWidget != nullptr)
+	//		hudWidget->AddToViewport();
+	//}
 
 	
 }

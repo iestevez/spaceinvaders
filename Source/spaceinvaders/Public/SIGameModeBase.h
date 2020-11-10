@@ -103,11 +103,12 @@ public:
 protected:
 	virtual void BeginPlay();
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BlueprintProtected="true"))
-		TSubclassOf<class UUserWidget> SIHUDClass;
+	// Now in blueprint:
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BlueprintProtected="true"))
+	//	TSubclassOf<class UUserWidget> SIHUDClass;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class UUserWidget* hudWidget;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//	class UUserWidget* hudWidget;
 
 	UFUNCTION(BlueprintCallable)
 		void RegenerateSquad();

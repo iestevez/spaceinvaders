@@ -12,6 +12,7 @@
 //#include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 AInvader::AInvader()
@@ -145,7 +146,9 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 				MyGameMode->SquadOnDownSide.ExecuteIfBound();
 			else {
 				MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
+				
 				Destroy();
+				
 			}
 		}
 		// Invader destruction
@@ -153,6 +156,9 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 			ABullet* bullet = Cast<ABullet>(OtherActor);
 			if (bullet->bulletType == BulletType::PLAYER) {
 				GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Invader %d killed"), this->positionInSquad));
+				if (PFXExplosion != nullptr) {
+					UGameplayStatics::SpawnEmitterAtLocation(TheWorld, PFXExplosion, this->GetActorTransform(), true);
+				}
 				OtherActor->Destroy();
 				MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
 				Destroy();
