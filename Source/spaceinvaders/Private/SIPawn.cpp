@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Particles/ParticleSystem.h"
 
 
 
@@ -24,6 +25,7 @@ ASIPawn::ASIPawn()
 	PrimaryActorTick.bCanEverTick = true;
 	isXHorizontal = false;
 	bulletClass = ABullet::StaticClass();
+	pfxExplosion = nullptr;
 	
 	SetStaticMesh(); // Default mesh
 
@@ -63,6 +65,7 @@ void ASIPawn::BeginPlay()
 	else
 		bulletTemplate = NewObject<ABullet>();
 
+	//bulletTemplate = NewObject<ABullet>();
 	bulletTemplate->bulletType = BulletType::PLAYER;
 	
 	UWorld* TheWorld = GetWorld();

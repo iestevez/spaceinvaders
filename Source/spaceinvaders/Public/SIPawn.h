@@ -29,9 +29,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		TSubclassOf<class ABullet> bulletClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UParticleSystem* pfxExplosion;
+
 	
-	UPROPERTY()
-		ABullet* bulletTemplate; // used as template for spawning
+	
 
 	UFUNCTION(BlueprintPure, Category = "Player")
 		int32 GetPlayerPoints();
@@ -66,15 +68,18 @@ public:
 
 	
 
-private:
+protected:
 
-	UPROPERTY(EditAnywhere,Category="Player")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Player")
 		int32 playerPoints;
 
-	UPROPERTY(EditAnywhere, Category= "Player")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Player")
 		int32 playerLifes;
 
+private:
 
+	UPROPERTY()
+	class ABullet* bulletTemplate; // used as template for spawning
 	// Constant default values
 
 	static constexpr const TCHAR* defaultStaticMeshPath = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
