@@ -8,9 +8,9 @@
 #include "Engine/World.h"
 #include "SIPlayerController.generated.h"
 
-/**
- * 
- */
+// This class derives from APlayerController
+// to set the camera tagged as MainCamera as the view target
+
 UCLASS()
 class SPACEINVADERS_API ASIPlayerController : public APlayerController
 {

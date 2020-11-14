@@ -39,51 +39,36 @@ void ASIGameModeBase::BeginPlay() {
 		AInvaderSquad* squad = Cast<AInvaderSquad>(InvaderSquadClass->GetDefaultObject());
 		squad->nCols = nInvaderRows;
 		squad->nRows = nInvaderCols;
-		this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
 		
-		//Cast<AIvaderSquad>(this->spawnedInvaderSquad)->nRows = nInvaderRows;
-		//this->spawnedInvaderSquad->nCols = nInvaderCols;
-	
+		this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
+			
 	}
-
-
-
 
 	// Delegate bindings:
 	this->NewSquad.BindUObject(this, &ASIGameModeBase::OnNewSquad);
 	this->PlayerZeroLifes.BindUObject(this, &ASIGameModeBase::OnPlayerZeroLifes);
-
-	// Create and make the hud vissible
-
-	//if (SIHUDClass != nullptr) {
-	//	hudWidget = CreateWidget<UUserWidget>(GetWorld(), SIHUDClass);
-	//	if (hudWidget != nullptr)
-	//		hudWidget->AddToViewport();
-	//}
-
 	
 }
 
 void ASIGameModeBase::RegenerateSquad() {
 
-	if (this->spawnedInvaderSquad != nullptr) {
-
-		this->spawnedInvaderSquad->Destroy();
-	}
+	if (this->spawnedInvaderSquad != nullptr)
+				this->spawnedInvaderSquad->Destroy();
+	
 	
 	this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
 
 }
 
 void ASIGameModeBase::EndGame() {
-	if (this->spawnedInvaderSquad != nullptr) {
+	if (this->spawnedInvaderSquad != nullptr) 
 		this->spawnedInvaderSquad->Destroy();
-	}
-	UGameplayStatics::OpenLevel(this,FName("Menu"));
+	
 	// Close level and open menu level
+	UGameplayStatics::OpenLevel(this, FName("Menu"));
+
 }
-
-
+	
 
 
 void ASIGameModeBase::OnPlayerZeroLifes() {
