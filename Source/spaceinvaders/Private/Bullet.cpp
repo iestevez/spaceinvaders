@@ -59,6 +59,8 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor) {
 		if (OtherActor->ActorHasTag(tag))
 			Destroy();
 
+	
+
 
 }
 

@@ -6,6 +6,7 @@
 #include "SpaceInvader.h"
 #include "InvaderMovementComponent.h"
 #include "Bullet.h"
+#include "SIPawn.h"
 
 
 // UE4 HEaders
@@ -133,29 +134,19 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 	
 	UWorld* TheWorld = GetWorld();
 	if (TheWorld != nullptr) {
+		UInvaderMovementComponent* imc = (UInvaderMovementComponent*)this->GetComponentByClass(UInvaderMovementComponent::StaticClass());
+		bool bFreeJump = imc->state == InvaderMovementType::FREEJUMP;
 		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
 		ASIGameModeBase* MyGameMode = Cast<ASIGameModeBase>(GameMode);
-		if (OtherActor->ActorHasTag(leftSideTag))
-			MyGameMode->SquadOnLeftSide.ExecuteIfBound();
-		else if (OtherActor->ActorHasTag(rightSideTag))
-			MyGameMode->SquadOnRightSide.ExecuteIfBound();
-		else if (OtherActor->ActorHasTag(downSideTag)) {
-			// First, we get de movement component
-			UInvaderMovementComponent* imc = (UInvaderMovementComponent*)this->GetComponentByClass(UInvaderMovementComponent::StaticClass());
-			if(imc->state!=InvaderMovementType::FREEJUMP)
-				MyGameMode->SquadOnDownSide.ExecuteIfBound();
-			else {
-				MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
-				
-				Destroy();
-				
-			}
-		}
-		// Invader destruction
+		UClass* otherActorClass = OtherActor->GetClass();
+
+		//First, bullet cases
 		if (OtherActor->IsA(ABullet::StaticClass())) {
 			ABullet* bullet = Cast<ABullet>(OtherActor);
 			if (bullet->bulletType == BulletType::PLAYER) {
-				GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Invader %d killed"), this->positionInSquad));
+				//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Invader %d killed"), this->positionInSquad));
+				
+				// Explosion effect
 				if (PFXExplosion != nullptr) {
 					UGameplayStatics::SpawnEmitterAtLocation(TheWorld, PFXExplosion, this->GetActorTransform(), true);
 				}
@@ -163,7 +154,32 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 				MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
 				Destroy();
 			}
+			else
+				return; //It's an invader bullet, so it has to be ignored
 		}
+
+		// OVerlap with other Invader is ignored
+		if (OtherActor->IsA(AInvader::StaticClass()))
+			return;
+
+		// Overlap with anything in freejump (except invaders and their own bullets) is a Destroy.
+		if (bFreeJump) {
+			MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
+			Destroy();
+			return;
+		}
+		
+		// Squad collides with limits
+		if (OtherActor->ActorHasTag(leftSideTag) && !bFreeJump)
+			MyGameMode->SquadOnLeftSide.ExecuteIfBound();
+		else if (OtherActor->ActorHasTag(rightSideTag) && !bFreeJump)
+			MyGameMode->SquadOnRightSide.ExecuteIfBound();
+		else if (OtherActor->ActorHasTag(downSideTag) && !bFreeJump) {
+			MyGameMode->SquadOnDownSide.ExecuteIfBound();
+			
+		}
+		
+		
 
 
 	}

@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
 #include "Templates/SubclassOf.h"
-//#include "Bullet.h"
-//#include "SIGameModeBase.h"
+
 
 #include "SIPawn.generated.h"
+
+// Space Invader Pawn Class
 
 UCLASS()
 class SPACEINVADERS_API ASIPawn : public ADefaultPawn
@@ -17,21 +18,28 @@ class SPACEINVADERS_API ASIPawn : public ADefaultPawn
 
 public:
 
+	// Velocity of the pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float velocity = 1000.0f;
 
+	// Velocity of the player bullets
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float bulletVelocity = 3000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool isXHorizontal = true;
 
+
+	// Bullets
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		TSubclassOf<class ABullet> bulletClass;
 
+	// Explosion effect
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UParticleSystem* PFXExplosion;
+
 	
-	UPROPERTY()
-		ABullet* bulletTemplate; // used as template for spawning
+	// Getters
 
 	UFUNCTION(BlueprintPure, Category = "Player")
 		int32 GetPlayerPoints();
@@ -39,43 +47,63 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Player")
 		int32 GetPlayerLifes();
 
+
+	// Overlaps
 	UFUNCTION()
 		virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	// Sets default values for this pawn's properties
 	ASIPawn();
 
-protected:
 
-	UFUNCTION(BlueprintCallable)
-		void SetStaticMesh(class UStaticMesh* staticMesh = nullptr,  FString path = TEXT(""),  FVector scale = FVector(1.0f,1.0f,1.0f));
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	// Bind to delegate
 	void OnInvaderDestroyed(int32 id);
-	void OnPlayerDestroyed();
-	void OnSquadSuccessful();
-	void OnSquadDissolved();
-	void OnMove(float value);
-	void OnFire();
 
-public:	
+	// Bind to delegate
+	void OnSquadSuccessful();
+	// Bind to delegate:
+	void OnSquadDissolved();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Timer to contro waiting after destruction
+	FTimerHandle timerHandle;
+
+
+protected:
+
+	// It could be possible to change the static mesh component during run time.
+	UFUNCTION(BlueprintCallable)
+		void SetStaticMesh(class UStaticMesh* staticMesh = nullptr,  FString path = TEXT(""),  FVector scale = FVector(1.0f,1.0f,1.0f));
+
+	// After the pawn is destroyed, waits and then all this happen.
+	UFUNCTION(BlueprintCallable)
+		void PostPlayerDestroyed();
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
+	void OnPlayerDestroyed();
+	void OnMove(float value);
+	void OnFire();
+
 	
 
 private:
 
-	UPROPERTY(EditAnywhere,Category="Player")
-		int32 playerPoints;
-
-	UPROPERTY(EditAnywhere, Category= "Player")
-		int32 playerLifes;
-
-
+	UPROPERTY() //This is necessary to control the reference counter of the ABullet and avoid garbage collector action
+		class ABullet* bulletTemplate; // used as template for spawning
 	// Constant default values
+		
+	int32 playerPoints;
+		
+	int32 playerLifes;
+
+	// To set a frozen state (no moving and firing capabilities)
+	bool bFrozen;
 
 	static constexpr const TCHAR* defaultStaticMeshPath = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
 	

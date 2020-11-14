@@ -68,7 +68,7 @@ public:
 		int32 nRounds = 0;
 	
 	//-----------------------------------------------
-	//Points to add up to the score due to invader destruction
+	//Points to add  the score up due to invader destruction
 	//-----------------------------------------------
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite,Category="Game parameters")
 		int32 pointsPerInvader = 1000;
@@ -103,18 +103,14 @@ public:
 protected:
 	virtual void BeginPlay();
 	
-	// Now in blueprint:
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BlueprintProtected="true"))
-	//	TSubclassOf<class UUserWidget> SIHUDClass;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//	class UUserWidget* hudWidget;
-
 	UFUNCTION(BlueprintCallable)
 		void RegenerateSquad();
 	
 	// Delegate bindings
-	void OnNewSquad(int32 lifes);
-	void OnPlayerZeroLifes();
+	UFUNCTION(BlueprintCallable)
+		void OnNewSquad(int32 lifes);
+	
+	UFUNCTION(BlueprintCallable)
+		void OnPlayerZeroLifes();
 
 };
