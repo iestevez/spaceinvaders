@@ -103,6 +103,7 @@ public:
 protected:
 	virtual void BeginPlay();
 	
+	
 	UFUNCTION(BlueprintCallable)
 		void RegenerateSquad();
 	

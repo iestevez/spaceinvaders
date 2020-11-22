@@ -76,10 +76,10 @@ void AInvaderSquad::BeginPlay()
 	AInvader* spawnedInvader;
 	float radiusX=0.0f;
 	float radiusY = 0.0f;
-	for (int i = 0; i < this->nCols; i++)
+	for (int i = 0; i < this->nRows; i++)
 	{
 
-		for (int j = 0; j < this->nRows; j++)
+		for (int j = 0; j < this->nCols; j++)
 		{
 			//invaderTemplate->SetPositionInSquad(count);
 			

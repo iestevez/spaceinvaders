@@ -5,11 +5,16 @@
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
 #include "Templates/SubclassOf.h"
-
+#include "SIGameModeBase.h"
 
 #include "SIPawn.generated.h"
 
 // Space Invader Pawn Class
+
+// Delegates of this game:
+//DECLARE_DELEGATE(FStandardDelegateSignature)
+//DECLARE_MULTICAST_DELEGATE_OneParam(FOneParamMulticastDelegateSignature, int32);
+//DECLARE_DELEGATE_OneParam(FOneParamDelegateSignature, int32)
 
 UCLASS()
 class SPACEINVADERS_API ASIPawn : public ADefaultPawn
@@ -17,6 +22,21 @@ class SPACEINVADERS_API ASIPawn : public ADefaultPawn
 	GENERATED_BODY()
 
 public:
+	// Points per invader
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 pointsPerInvader;
+
+	// Points per squad
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 pointsPerSquad;
+
+	// References to Involved delegates
+	FStandardDelegateSignature* SquadDissolved;
+	FStandardDelegateSignature* SquadSuccessful;
+	FOneParamMulticastDelegateSignature* InvaderDestroyed;
+
+	FOneParamDelegateSignature* NewSquad;
+	FStandardDelegateSignature* PlayerZeroLifes;
 
 	// Velocity of the pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

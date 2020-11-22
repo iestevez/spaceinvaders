@@ -15,7 +15,7 @@ ASIGameModeBase::ASIGameModeBase()
 	: isXHorizontal{ false }
 	, nInvaderRows{ 5 }
 	, nInvaderCols{ 7 }
-	, pointsPerInvader{ 1000 }
+	, pointsPerInvader{ 3000 }
 	, pointsPerSquad{ 10000 }
 
 
@@ -28,6 +28,8 @@ ASIGameModeBase::ASIGameModeBase()
 
 }
 
+
+
 void ASIGameModeBase::BeginPlay() {
 
 	Super::BeginPlay();
@@ -37,11 +39,23 @@ void ASIGameModeBase::BeginPlay() {
 	if (InvaderSquadClass) {
 		// Change defaults before Spawn
 		AInvaderSquad* squad = Cast<AInvaderSquad>(InvaderSquadClass->GetDefaultObject());
-		squad->nCols = nInvaderRows;
-		squad->nRows = nInvaderCols;
+		if (squad) {
+			squad->nCols = nInvaderRows;
+			squad->nRows = nInvaderCols;
+
+			this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
+		}
+	}
+
+	// Change pawn parameters
+	UWorld* TheWorld;
+	TheWorld = GetWorld();
+	ASIPawn* pawn = Cast<ASIPawn>((UGameplayStatics::GetPlayerController(TheWorld, 0))->GetPawn());
+	if (pawn) {
 		
-		this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
-			
+		pawn->pointsPerInvader = pointsPerInvader;
+		pawn->pointsPerSquad = pointsPerSquad;
+		
 	}
 
 	// Delegate bindings:

@@ -20,6 +20,8 @@
 ASIPawn::ASIPawn() 
 	: playerPoints{ 0 }
 	, playerLifes{ 2 }
+	, pointsPerInvader{1000}
+	, pointsPerSquad{10000}
 	, bFrozen {false}
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -60,9 +62,9 @@ void ASIPawn::BeginPlay()
 
 	// Generate a Bullet Template of the correct class
 	if (bulletClass->IsChildOf<ABullet>())
-		bulletTemplate = NewObject<ABullet>(this, bulletClass->GetFName(), RF_NoFlags, bulletClass.GetDefaultObject());
+		bulletTemplate = NewObject<ABullet>(this, bulletClass);
 	else
-		bulletTemplate = NewObject<ABullet>();
+		bulletTemplate = NewObject<ABullet>(this);
 
 	//bulletTemplate = NewObject<ABullet>();
 	bulletTemplate->bulletType = BulletType::PLAYER;
@@ -71,10 +73,17 @@ void ASIPawn::BeginPlay()
 	if (TheWorld != nullptr) {
 		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
 		ASIGameModeBase* MyGameMode = Cast<ASIGameModeBase>(GameMode);
-		MyGameMode->InvaderDestroyed.AddUObject(this, &ASIPawn::OnInvaderDestroyed);
-		MyGameMode->SquadSuccessful.BindUObject(this, &ASIPawn::OnSquadSuccessful);
-		MyGameMode->SquadDissolved.BindUObject(this, &ASIPawn::OnSquadDissolved);
-		
+		if (MyGameMode) {
+			InvaderDestroyed = &MyGameMode->InvaderDestroyed;
+			SquadDissolved = &MyGameMode->SquadDissolved;
+			SquadSuccessful = &MyGameMode->SquadSuccessful;
+			NewSquad = &MyGameMode->NewSquad;
+			PlayerZeroLifes = &MyGameMode->PlayerZeroLifes;
+
+			InvaderDestroyed->AddUObject(this, &ASIPawn::OnInvaderDestroyed);
+			SquadSuccessful->BindUObject(this, &ASIPawn::OnSquadSuccessful);
+			SquadDissolved->BindUObject(this, &ASIPawn::OnSquadDissolved);
+		}
 	}
 	
 
@@ -97,21 +106,21 @@ void ASIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 }
 
 void ASIPawn::OnMove(float value) {
+	
 	if (bFrozen)
 		return;
+
 	float deltaTime = GetWorld()->GetDeltaSeconds();
 	
 	float delta = velocity * value * deltaTime;
 	FVector dir;
+
 	if (isXHorizontal)
-		dir = FVector(1.0f, 0.0f, 0.0f);
-	
+		dir = FVector(1.0f, 0.0f, 0.0f);	
 	else
 		dir = FVector(0.0f, 1.0f, 0.0f);
 	
-	AddMovementInput(dir, delta);
-	
-
+	AddMovementInput(dir, delta);	
 }
 
 void ASIPawn::OnFire() {
@@ -125,7 +134,7 @@ void ASIPawn::OnFire() {
 	FActorSpawnParameters spawnParameters;
 	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnParameters.Template = bulletTemplate;
-	spawnedBullet = (ABullet*)GetWorld()->SpawnActor<ABullet>(spawnLocation,spawnRotation,spawnParameters);
+	spawnedBullet = Cast<ABullet>(GetWorld()->SpawnActor(bulletClass,&spawnLocation,&spawnRotation,spawnParameters));
 	
 }
 
@@ -198,16 +207,17 @@ void ASIPawn::OnPlayerDestroyed() {
 }
 
 void ASIPawn::PostPlayerDestroyed() {
-	UWorld* TheWorld;
-	TheWorld = GetWorld();
-	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	//UWorld* TheWorld;
+	//TheWorld = GetWorld();
+	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
 	// Zero lifes?
-	if (MyGame) {
+	//if (MyGame) {
 		if (this->playerLifes == 0) {
-			MyGame->PlayerZeroLifes.ExecuteIfBound();
+			if(this->PlayerZeroLifes)
+				this->PlayerZeroLifes->ExecuteIfBound();
 			return;
 		}
-	}
+	//}
 	// The Pawn can continue
 	// Show Pawn again
 	UStaticMeshComponent* LocalMeshComponent = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
@@ -223,32 +233,34 @@ void ASIPawn::PostPlayerDestroyed() {
 
 // Delegate responses:
 void ASIPawn::OnInvaderDestroyed(int32 id) {
-	UWorld* TheWorld;
-	TheWorld = GetWorld();
-	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	if (MyGame) {
-		this->playerPoints += MyGame->pointsPerInvader;
-	}
+	//UWorld* TheWorld;
+	//TheWorld = GetWorld();
+	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	//if (MyGame) {
+		this->playerPoints += this->pointsPerInvader;
+	//}
 }
 
 
 void ASIPawn::OnSquadSuccessful() {
-	UWorld* TheWorld;
-	TheWorld = GetWorld();
-	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	if (MyGame) {
+	//UWorld* TheWorld;
+	//TheWorld = GetWorld();
+	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	//if (MyGame) {
 		--this->playerLifes;
-		MyGame->NewSquad.ExecuteIfBound(this->playerLifes);
-	}
+		if(this->NewSquad)
+			this->NewSquad->ExecuteIfBound(this->playerLifes);
+	//}
 }
 
 void ASIPawn::OnSquadDissolved() {
-	UWorld* TheWorld;
-	TheWorld = GetWorld();
-	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	if (MyGame) {
-		this->playerPoints += MyGame->pointsPerSquad;
-		MyGame->NewSquad.ExecuteIfBound(this->playerLifes);
-	}
+	//UWorld* TheWorld;
+	//TheWorld = GetWorld();
+	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
+	//if (MyGame) {
+		this->playerPoints += this->pointsPerSquad;
+		if(this->NewSquad)
+			this->NewSquad->ExecuteIfBound(this->playerLifes);
+	//}
 }
 
