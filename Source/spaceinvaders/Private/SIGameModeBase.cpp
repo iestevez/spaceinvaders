@@ -12,8 +12,7 @@
 
 
 ASIGameModeBase::ASIGameModeBase()
-	: isXHorizontal{ false }
-	, nInvaderRows{ 5 }
+	: nInvaderRows{ 5 }
 	, nInvaderCols{ 7 }
 	, pointsPerInvader{ 3000 }
 	, pointsPerSquad{ 10000 }
@@ -40,9 +39,8 @@ void ASIGameModeBase::BeginPlay() {
 		// Change defaults before Spawn
 		AInvaderSquad* squad = Cast<AInvaderSquad>(InvaderSquadClass->GetDefaultObject());
 		if (squad) {
-			squad->nCols = nInvaderRows;
-			squad->nRows = nInvaderCols;
-
+			squad->SetRowsAndCols(nInvaderRows, nInvaderCols);
+			
 			this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
 		}
 	}

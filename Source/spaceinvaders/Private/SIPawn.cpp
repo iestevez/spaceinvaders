@@ -23,6 +23,7 @@ ASIPawn::ASIPawn()
 	, pointsPerInvader{1000}
 	, pointsPerSquad{10000}
 	, bFrozen {false}
+	, bPause {false}
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -102,7 +103,13 @@ void ASIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAxis(TEXT("SIRight"), this, &ASIPawn::OnMove);
 	PlayerInputComponent->BindAction(TEXT("SIFire"), IE_Pressed, this, &ASIPawn::OnFire);
+	PlayerInputComponent->BindAction(TEXT("SIPause"), IE_Pressed, this, &ASIPawn::OnPause);
 
+}
+
+void ASIPawn::OnPause() {
+	bPause = !bPause;
+	//if(bPause)
 }
 
 void ASIPawn::OnMove(float value) {

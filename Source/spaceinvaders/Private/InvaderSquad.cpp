@@ -17,7 +17,7 @@ AInvaderSquad::AInvaderSquad()
 	, horizontalVelocity {AInvaderSquad::defaultHorizontalVelocity}
 	, verticalVelocity {AInvaderSquad::defaultVerticalVelocity}
 	, extraSeparation(AInvaderSquad::defaultExtraSeparation)
-	, isXHorizontal {false}
+	//, isXHorizontal {false}
 	, numberOfMembers {nRows*nCols}
 	, freeJumpRate{ 0.0001 }
 	, timeFromLastFreeJump {0.0}
@@ -36,6 +36,24 @@ void AInvaderSquad::Initialize() {
 	PrimaryActorTick.bCanEverTick = true;
 	
 	
+}
+
+void AInvaderSquad::SetRowsAndCols(int32 rows, int32 cols) {
+	this->nRows = rows;
+	this->nCols = cols;
+	this->numberOfMembers = this->nRows * this->nCols;
+}
+
+int32 AInvaderSquad::GetRows() {
+	return this->nRows;
+}
+
+int32 AInvaderSquad::GetCols() {
+	return this->nCols;
+}
+
+int32 AInvaderSquad::GetNumberOfMembers() {
+	return this->numberOfMembers;
 }
 
 // Called when the game starts or when spawned
@@ -76,10 +94,10 @@ void AInvaderSquad::BeginPlay()
 	AInvader* spawnedInvader;
 	float radiusX=0.0f;
 	float radiusY = 0.0f;
-	for (int i = 0; i < this->nRows; i++)
+	for (int i = 0; i < this->nCols; i++)
 	{
 
-		for (int j = 0; j < this->nCols; j++)
+		for (int j = 0; j < this->nRows; j++)
 		{
 			//invaderTemplate->SetPositionInSquad(count);
 			
@@ -140,7 +158,7 @@ void AInvaderSquad::UpdateSquadState(float delta) {
 					survivors.Emplace(invader);
 				imc->horizontalVelocity = horizontalVelocity;
 				imc->verticalVelocity = verticalVelocity;
-				imc->isXHorizontal = isXHorizontal;
+				//imc->isXHorizontal = isXHorizontal;
 				if(imc->state!=InvaderMovementType::FREEJUMP) // The state of the squad is copied to the invader state (except for those in FREEJUMP)
 					imc->state = state;
 			}

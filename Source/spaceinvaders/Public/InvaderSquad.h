@@ -40,8 +40,8 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite,Category="Squad movement")
 		InvaderMovementType state = InvaderMovementType::STOP;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Squad movement")
-		bool isXHorizontal = true;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Squad movement")
+		//bool isXHorizontal = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Squad movement")
 		float freeJumpRate;
@@ -52,11 +52,7 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Squad Spawner")
 		class AInvader* invaderTemplate;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category="Squad Spawner")
-	int32 nRows;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
-	int32 nCols;
+	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
 		float extraSeparation;
@@ -73,13 +69,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateSquadState(float delta);
 
+	UFUNCTION(BlueprintCallable)
+		void SetRowsAndCols(int32 nRows, int32 nCols);
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetRows();
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetCols();
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetNumberOfMembers();
+
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		int32 numberOfMembers;
+	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		class ASIGameModeBase* MyGameMode;
 
+	
+	
 	UFUNCTION()
 		void SquadOnLeftSide();
 
@@ -100,6 +109,14 @@ protected:
 
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Squad Spawner")
+		int32 nRows;
+
+	UPROPERTY(EditDefaultsOnly,  Category = "Squad Spawner")
+		int32 nCols;
+
+	UPROPERTY(VisibleAnywhere)
+		int32 numberOfMembers;
 
 	UPROPERTY(VisibleAnywhere)
 		float timeFromLastFreeJump;
