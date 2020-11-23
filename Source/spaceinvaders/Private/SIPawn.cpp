@@ -150,24 +150,14 @@ int32 ASIPawn::GetPlayerLifes()
 }
 
 void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
-	// Debug
-	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
-	FName actorTag;
-
+	
 	if (!bFrozen) {
-		UWorld* TheWorld = GetWorld();
-		if (TheWorld != nullptr) {
-			AGameModeBase* GameMode = UGameplayStatics::GetGameMode(TheWorld);
-			ASIGameModeBase* MyGameMode = Cast<ASIGameModeBase>(GameMode);
-
 			// Collision with an enemy
 			if (OtherActor->IsA(ABullet::StaticClass())) {
 				ABullet* bullet = Cast<ABullet>(OtherActor);
 				if (bullet->bulletType == BulletType::INVADER) {
-					//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Player killed")));
 					OtherActor->Destroy();
 					OnPlayerDestroyed();
-
 				}
 			}
 			// Collision with an invader
@@ -177,8 +167,6 @@ void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 				OnPlayerDestroyed();
 
 			}
-
-		}
 	}
 
 }
@@ -186,8 +174,8 @@ void ASIPawn::NotifyActorBeginOverlap(AActor* OtherActor) {
 void ASIPawn::OnPlayerDestroyed() {
 	UWorld* TheWorld;
 	TheWorld = GetWorld();
-	ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	if (TheWorld && MyGame) {
+	
+	if (TheWorld ) {
 		bFrozen = true; // Pawn can'tmove or fire while being destroyed
 		--this->playerLifes;
 		UStaticMeshComponent* LocalMeshComponent = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
@@ -199,27 +187,18 @@ void ASIPawn::OnPlayerDestroyed() {
 			UGameplayStatics::SpawnEmitterAtLocation(TheWorld, PFXExplosion, this->GetActorTransform(), true);
 		}
 		// Wait:
-		
 		TheWorld->GetTimerManager().SetTimer(timerHandle,this, &ASIPawn::PostPlayerDestroyed,3.0f,false);
-		
-
 	}
 }
 
 void ASIPawn::PostPlayerDestroyed() {
-	//UWorld* TheWorld;
-	//TheWorld = GetWorld();
-	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	// Zero lifes?
-	//if (MyGame) {
-		if (this->playerLifes == 0) {
-			if(this->PlayerZeroLifes)
-				this->PlayerZeroLifes->ExecuteIfBound();
-			return;
-		}
-	//}
-	// The Pawn can continue
-	// Show Pawn again
+	
+	if (this->playerLifes == 0) {
+		if(this->PlayerZeroLifes)
+			this->PlayerZeroLifes->ExecuteIfBound();
+		return;
+	}
+	
 	UStaticMeshComponent* LocalMeshComponent = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
 	// Hide Static Mesh Component
 	if (LocalMeshComponent != nullptr) {
@@ -233,34 +212,19 @@ void ASIPawn::PostPlayerDestroyed() {
 
 // Delegate responses:
 void ASIPawn::OnInvaderDestroyed(int32 id) {
-	//UWorld* TheWorld;
-	//TheWorld = GetWorld();
-	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	//if (MyGame) {
-		this->playerPoints += this->pointsPerInvader;
-	//}
+	this->playerPoints += this->pointsPerInvader;
 }
 
 
 void ASIPawn::OnSquadSuccessful() {
-	//UWorld* TheWorld;
-	//TheWorld = GetWorld();
-	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	//if (MyGame) {
 		--this->playerLifes;
 		if(this->NewSquad)
 			this->NewSquad->ExecuteIfBound(this->playerLifes);
-	//}
 }
 
 void ASIPawn::OnSquadDissolved() {
-	//UWorld* TheWorld;
-	//TheWorld = GetWorld();
-	//ASIGameModeBase* MyGame = Cast<ASIGameModeBase>(UGameplayStatics::GetGameMode(TheWorld));
-	//if (MyGame) {
 		this->playerPoints += this->pointsPerSquad;
 		if(this->NewSquad)
 			this->NewSquad->ExecuteIfBound(this->playerLifes);
-	//}
 }
 
