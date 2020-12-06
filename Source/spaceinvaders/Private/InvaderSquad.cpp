@@ -32,6 +32,27 @@ AInvaderSquad::AInvaderSquad()
 
 }
 
+void AInvaderSquad::SetRows(int32 nrows) {
+	this->nRows = nrows;
+	this->numberOfMembers = this->nRows * this->nCols;
+}
+
+void  AInvaderSquad::SetCols(int32 ncols) {
+	this->nCols = ncols;
+	this->numberOfMembers = this->nRows * this->nCols;
+}
+
+int32 AInvaderSquad::GetRows() {
+	return this->nRows;
+}
+
+int32 AInvaderSquad::GetCols() {
+	return this->nCols;
+}
+
+int32 AInvaderSquad::GetNumberOfMembers() {
+	return this->numberOfMembers;
+}
 void AInvaderSquad::Initialize() {
 	PrimaryActorTick.bCanEverTick = true;
 	
@@ -76,10 +97,10 @@ void AInvaderSquad::BeginPlay()
 	AInvader* spawnedInvader;
 	float radiusX=0.0f;
 	float radiusY = 0.0f;
-	for (int i = 0; i < this->nRows; i++)
+	for (int i = 0; i < this->nCols; i++)
 	{
 
-		for (int j = 0; j < this->nCols; j++)
+		for (int j = 0; j < this->nRows; j++)
 		{
 			//invaderTemplate->SetPositionInSquad(count);
 			

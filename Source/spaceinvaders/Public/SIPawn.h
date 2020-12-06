@@ -59,6 +59,9 @@ public:
 		class UParticleSystem* PFXExplosion;
 
 	
+
+
+
 	// Getters
 
 	UFUNCTION(BlueprintPure, Category = "Player")
@@ -92,6 +95,12 @@ public:
 	// Timer to contro waiting after destruction
 	FTimerHandle timerHandle;
 
+	//Audios
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* AudioShoot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* AudioExplosion;
+
 
 protected:
 
@@ -114,6 +123,11 @@ protected:
 
 private:
 
+	// Audio component
+	UPROPERTY()
+		class UAudioComponent* AudioComponent;
+
+	
 	UPROPERTY() //This is necessary to control the reference counter of the ABullet and avoid garbage collector action
 		class ABullet* bulletTemplate; // used as template for spawning
 	// Constant default values

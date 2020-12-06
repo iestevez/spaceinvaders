@@ -52,11 +52,7 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Squad Spawner")
 		class AInvader* invaderTemplate;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category="Squad Spawner")
-	int32 nRows;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
-	int32 nCols;
+	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Squad Spawner")
 		float extraSeparation;
@@ -73,9 +69,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateSquadState(float delta);
 
+	UFUNCTION(BlueprintCallable)
+		void SetRows(int32 nrows);
+
+	UFUNCTION(BlueprintCallable)
+		void SetCols(int32 ncols);
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetRows();
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetCols();
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetNumberOfMembers();
+
+
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		int32 numberOfMembers;
+	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		class ASIGameModeBase* MyGameMode;
@@ -92,6 +103,9 @@ protected:
 	UFUNCTION()
 		void SquadFinishesDown();
 
+	
+
+
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
 	InvaderMovementType previousState = InvaderMovementType::STOP;
 
@@ -101,9 +115,16 @@ protected:
 
 private:
 
+		int32 nRows;
+
+		int32 nCols;
+
+		int32 numberOfMembers;
+
 	UPROPERTY(VisibleAnywhere)
 		float timeFromLastFreeJump;
 
+	
 	// Values for initializing defaults
 	static const int32 defaultNRows = 5;
 	static const int32 defaultNCols = 7;

@@ -40,8 +40,8 @@ void ASIGameModeBase::BeginPlay() {
 		// Change defaults before Spawn
 		AInvaderSquad* squad = Cast<AInvaderSquad>(InvaderSquadClass->GetDefaultObject());
 		if (squad) {
-			squad->nCols = nInvaderRows;
-			squad->nRows = nInvaderCols;
+			squad->SetCols( nInvaderCols);
+			squad->SetRows(nInvaderRows);
 
 			this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
 		}
@@ -68,10 +68,16 @@ void ASIGameModeBase::RegenerateSquad() {
 
 	if (this->spawnedInvaderSquad != nullptr)
 				this->spawnedInvaderSquad->Destroy();
-	
-	
-	this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
+	if (InvaderSquadClass) {
+		// Change defaults before Spawn
+		AInvaderSquad* squad = Cast<AInvaderSquad>(InvaderSquadClass->GetDefaultObject());
+		if (squad) {
+			squad->SetCols(nInvaderCols);
+			squad->SetRows(nInvaderRows);
 
+			this->spawnedInvaderSquad = Cast<AInvaderSquad>(GetWorld()->SpawnActor(InvaderSquadClass, &spawnLocation));
+		}
+	}
 }
 
 void ASIGameModeBase::EndGame() {

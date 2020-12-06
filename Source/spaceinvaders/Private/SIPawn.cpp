@@ -12,6 +12,8 @@
 #include "Components/BoxComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "TimerManager.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 
 
@@ -31,6 +33,10 @@ ASIPawn::ASIPawn()
 	PFXExplosion = nullptr;
 	
 	SetStaticMesh(); // Default mesh (SetStaticMesh with no arguments)
+
+	// Audio component
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>("Audio");
+	AudioComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
 }
 
@@ -135,6 +141,11 @@ void ASIPawn::OnFire() {
 	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnParameters.Template = bulletTemplate;
 	spawnedBullet = Cast<ABullet>(GetWorld()->SpawnActor(bulletClass,&spawnLocation,&spawnRotation,spawnParameters));
+	if (AudioComponent != nullptr && AudioShoot!=nullptr) {
+		AudioComponent->SetSound(AudioShoot);
+		AudioComponent->Play();
+	}
+		
 	
 }
 
@@ -185,6 +196,11 @@ void ASIPawn::OnPlayerDestroyed() {
 		}
 		if (PFXExplosion != nullptr) {
 			UGameplayStatics::SpawnEmitterAtLocation(TheWorld, PFXExplosion, this->GetActorTransform(), true);
+		}
+		//Audio
+		if (AudioComponent != nullptr && AudioExplosion != nullptr) {
+			AudioComponent->SetSound(AudioExplosion);
+			AudioComponent->Play();
 		}
 		// Wait:
 		TheWorld->GetTimerManager().SetTimer(timerHandle,this, &ASIPawn::PostPlayerDestroyed,3.0f,false);
