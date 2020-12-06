@@ -17,7 +17,7 @@ AInvaderSquad::AInvaderSquad()
 	, horizontalVelocity {AInvaderSquad::defaultHorizontalVelocity}
 	, verticalVelocity {AInvaderSquad::defaultVerticalVelocity}
 	, extraSeparation(AInvaderSquad::defaultExtraSeparation)
-	, isXHorizontal {false}
+	//, isXHorizontal {false}
 	, numberOfMembers {nRows*nCols}
 	, freeJumpRate{ 0.0001 }
 	, timeFromLastFreeJump {0.0}
@@ -58,6 +58,9 @@ void AInvaderSquad::Initialize() {
 	
 	
 }
+
+
+
 
 // Called when the game starts or when spawned
 void AInvaderSquad::BeginPlay()
@@ -161,7 +164,7 @@ void AInvaderSquad::UpdateSquadState(float delta) {
 					survivors.Emplace(invader);
 				imc->horizontalVelocity = horizontalVelocity;
 				imc->verticalVelocity = verticalVelocity;
-				imc->isXHorizontal = isXHorizontal;
+				//imc->isXHorizontal = isXHorizontal;
 				if(imc->state!=InvaderMovementType::FREEJUMP) // The state of the squad is copied to the invader state (except for those in FREEJUMP)
 					imc->state = state;
 			}

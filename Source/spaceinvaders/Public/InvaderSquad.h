@@ -40,8 +40,8 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite,Category="Squad movement")
 		InvaderMovementType state = InvaderMovementType::STOP;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Squad movement")
-		bool isXHorizontal = true;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Squad movement")
+		//bool isXHorizontal = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Squad movement")
 		float freeJumpRate;
@@ -84,13 +84,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 		int32 GetNumberOfMembers();
 
-
 protected:
 	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		class ASIGameModeBase* MyGameMode;
 
+	
+	
 	UFUNCTION()
 		void SquadOnLeftSide();
 
@@ -114,7 +115,7 @@ protected:
 
 
 private:
-
+	
 		int32 nRows;
 
 		int32 nCols;

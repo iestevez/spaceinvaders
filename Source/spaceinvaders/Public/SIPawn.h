@@ -116,8 +116,13 @@ protected:
 	virtual void BeginPlay() override;
 	
 	void OnPlayerDestroyed();
+	
+
 	void OnMove(float value);
+	
 	void OnFire();
+	
+	void OnPause();
 
 	
 
@@ -138,6 +143,9 @@ private:
 
 	// To set a frozen state (no moving and firing capabilities)
 	bool bFrozen;
+
+	//To pause the Game
+	bool bPause;
 
 	static constexpr const TCHAR* defaultStaticMeshPath = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
 	
