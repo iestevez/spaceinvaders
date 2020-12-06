@@ -57,8 +57,8 @@ public:
 	//-------------------------------------------------
 	// Level is oriented with its horizontal dimension along the X axis
 	//-------------------------------------------------------
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category= "Level Layout")
-		bool isXHorizontal = true;
+	//UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category= "Level Layout")
+		//bool isXHorizontal = true;
 
 
 	//-----------------------------------------------
@@ -102,6 +102,7 @@ public:
 
 protected:
 	virtual void BeginPlay();
+	
 	
 	UFUNCTION(BlueprintCallable)
 		void RegenerateSquad();

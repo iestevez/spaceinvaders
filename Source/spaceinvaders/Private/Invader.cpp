@@ -14,6 +14,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "TimerManager.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AInvader::AInvader()
@@ -37,7 +40,8 @@ AInvader::AInvader()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMeshComponent");
 	TriggerBox = CreateDefaultSubobject<UBoxComponent>("TriggerBoxComponent");
 	Movement = CreateDefaultSubobject<UInvaderMovementComponent>("InvaderMoveComponent");
-
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>("Audio");
+	AudioComponentJet = CreateDefaultSubobject<UAudioComponent>("AudioJet");
 	RootComponent = Root; // We need a RootComponent to have a base transform
 
 	SetInvaderMesh();
@@ -46,8 +50,13 @@ AInvader::AInvader()
 	Mesh->AttachToComponent(Root,FAttachmentTransformRules::KeepWorldTransform);
 	TriggerBox->AttachToComponent(Mesh,FAttachmentTransformRules::KeepWorldTransform);
 	AddOwnedComponent(Movement); // Because UInvaderMovementComponent is only an Actor Component and not a Scene Component can't Attach To.
+	// Audio component
+	
+	AudioComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+	AudioComponentJet->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
 	fireRate = 0.0001f;
+	bFrozen = false;
 }
 
 // Called when the game starts or when spawned
@@ -68,6 +77,9 @@ void AInvader::BeginPlay()
 
 	bulletTemplate->bulletType = BulletType::INVADER;
 
+	// Get InvaderMovementCompont
+	InvaderMovementComponent = (UInvaderMovementComponent*)this->GetComponentByClass(UInvaderMovementComponent::StaticClass());
+	
 	//this->bulletTemplate = NewObject<ABullet>();
 	//this->bulletTemplate->bulletType = BulletType::INVADER;
 	
@@ -87,12 +99,29 @@ int32 AInvader::GetPositionInSquad()
 void AInvader::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bFrozen) { //Frozing the invader when is shooted down
+		InvaderMovementComponent->state = InvaderMovementType::STOP;
+		return;
+	}
 	this->timeFromLastShot += DeltaTime;
 	
 	// Fire?
 	float val = FMath::RandRange(0.0f, 1.0f);
 	if (val < (1.0-FMath::Exp(-fireRate*this->timeFromLastShot))) 
 			Fire();
+
+	//Jet sound
+	if (AudioComponentJet != nullptr && AudioJet != nullptr) {
+		if (InvaderMovementComponent != nullptr) {
+			bool bFreeJump = InvaderMovementComponent->state == InvaderMovementType::FREEJUMP;
+			if (bFreeJump && !AudioComponentJet->IsPlaying()) {
+				AudioComponentJet->SetSound(AudioJet);
+				AudioComponentJet->Play();
+			}
+		}
+		
+	}
 	
 	
 	
@@ -100,6 +129,8 @@ void AInvader::Tick(float DeltaTime)
 }
 
 void AInvader::Fire() {
+	if (bFrozen)
+		return;
 	FVector spawnLocation = GetActorLocation();
 	FRotator spawnRotation = GetActorRotation();
 	ABullet* spawnedBullet;
@@ -110,6 +141,12 @@ void AInvader::Fire() {
 	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnParameters.Template = this->bulletTemplate;
 	spawnedBullet = (ABullet*)GetWorld()->SpawnActor<ABullet>(spawnLocation, spawnRotation, spawnParameters);
+
+	if (AudioComponent != nullptr && AudioShoot != nullptr) {
+		AudioComponent->SetSound(AudioShoot);
+		AudioComponent->Play();
+	}
+
 	this->timeFromLastShot = 0.0f;
 	}
 }
@@ -130,7 +167,8 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 	// Debug
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, FString::Printf(TEXT("%s entered me"), *(OtherActor->GetName())));
 	FName actorTag;
-	
+	if (bFrozen) // If it is already a zombie invader nothing happens.
+		return;
 	
 	UWorld* TheWorld = GetWorld();
 	if (TheWorld != nullptr) {
@@ -147,12 +185,15 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 				//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("Invader %d killed"), this->positionInSquad));
 				
 				// Explosion effect
-				if (PFXExplosion != nullptr) {
-					UGameplayStatics::SpawnEmitterAtLocation(TheWorld, PFXExplosion, this->GetActorTransform(), true);
-				}
+				//if (PFXExplosion != nullptr) {
+				//	UGameplayStatics::SpawnEmitterAtLocation(TheWorld, PFXExplosion, this->GetActorTransform(), true);
+				//}
+				
 				OtherActor->Destroy();
 				MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
-				Destroy();
+				InvaderDestroyed();
+				//Destroy();
+				return;
 			}
 			else
 				return; //It's an invader bullet, so it has to be ignored
@@ -162,7 +203,7 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 		if (OtherActor->IsA(AInvader::StaticClass()))
 			return;
 
-		// Overlap with anything in freejump (except invaders and their own bullets) is a Destroy.
+		// Overlap with anything in freejump (except invaders and their own bullets) is a silent Destroy.
 		if (bFreeJump) {
 			MyGameMode->InvaderDestroyed.Broadcast(this->positionInSquad);
 			Destroy();
@@ -186,7 +227,35 @@ void AInvader::NotifyActorBeginOverlap(AActor* OtherActor) {
 
 }
 
+void AInvader::InvaderDestroyed() {
+	UWorld* TheWorld;
+	TheWorld = GetWorld();
+	
 
+	if (TheWorld) {
+		bFrozen = true; // Invader can'tmove or fire while being destroyed
+	
+		UStaticMeshComponent* LocalMeshComponent = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
+		// Hide Static Mesh Component
+		if (LocalMeshComponent != nullptr) {
+			LocalMeshComponent->SetVisibility(false);
+		}
+		if (PFXExplosion != nullptr) {
+			UGameplayStatics::SpawnEmitterAtLocation(TheWorld, PFXExplosion, this->GetActorTransform(), true);
+		}
+		//Audio
+		if (AudioComponent != nullptr && AudioExplosion != nullptr) {
+			AudioComponent->SetSound(AudioExplosion);
+			AudioComponent->Play();
+		}
+		// Wait:
+		TheWorld->GetTimerManager().SetTimer(timerHandle, this, &AInvader::PostInvaderDestroyed, 2.0f, false);
+	}
+}
+void AInvader::PostInvaderDestroyed() {
+	Destroy();
+
+}
 
 
 void AInvader::SetInvaderMesh(UStaticMesh* newStaticMesh, const FString path, FVector scale ) {

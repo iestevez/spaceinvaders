@@ -26,7 +26,7 @@ UInvaderMovementComponent::UInvaderMovementComponent()
 	deltaAlphaInterpolation = 1.0f/30.0f;
 	numberOfTargetPoints = 5;
 	previousState = InvaderMovementType::STOP;
-
+	
 	// ...
 }
 

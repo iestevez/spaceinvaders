@@ -76,6 +76,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetInvaderMesh(class UStaticMesh* staticMesh=nullptr, const FString path= TEXT(""), FVector scale=FVector(1.0f,1.0f,1.0f));
 
+	//Audio
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* AudioShoot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* AudioExplosion;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* AudioJet;
 
 protected:
 	// Called when the game starts or when spawned
@@ -99,6 +106,16 @@ protected:
 	
 
 private:
+
+	UPROPERTY()
+		class UAudioComponent* AudioComponent;
+
+	UPROPERTY()
+		class UAudioComponent* AudioComponentJet;
+
+	UPROPERTY()
+		class UInvaderMovementComponent* InvaderMovementComponent;
+
 	UPROPERTY(VisibleAnywhere)
 		int32 positionInSquad = 0;
 	
@@ -113,6 +130,17 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 		FName downSideTag; 
+
+	UFUNCTION()
+		void InvaderDestroyed();
+
+	UFUNCTION()
+		void PostInvaderDestroyed();
+
+	// Timer to contro waiting after destruction
+	FTimerHandle timerHandle;
+
+	bool bFrozen;
 
 	
 	// Static literals of the class

@@ -5,11 +5,16 @@
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
 #include "Templates/SubclassOf.h"
-
+#include "SIGameModeBase.h"
 
 #include "SIPawn.generated.h"
 
 // Space Invader Pawn Class
+
+// Delegates of this game:
+//DECLARE_DELEGATE(FStandardDelegateSignature)
+//DECLARE_MULTICAST_DELEGATE_OneParam(FOneParamMulticastDelegateSignature, int32);
+//DECLARE_DELEGATE_OneParam(FOneParamDelegateSignature, int32)
 
 UCLASS()
 class SPACEINVADERS_API ASIPawn : public ADefaultPawn
@@ -17,6 +22,21 @@ class SPACEINVADERS_API ASIPawn : public ADefaultPawn
 	GENERATED_BODY()
 
 public:
+	// Points per invader
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 pointsPerInvader;
+
+	// Points per squad
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 pointsPerSquad;
+
+	// References to Involved delegates
+	FStandardDelegateSignature* SquadDissolved;
+	FStandardDelegateSignature* SquadSuccessful;
+	FOneParamMulticastDelegateSignature* InvaderDestroyed;
+
+	FOneParamDelegateSignature* NewSquad;
+	FStandardDelegateSignature* PlayerZeroLifes;
 
 	// Velocity of the pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -39,6 +59,9 @@ public:
 		class UParticleSystem* PFXExplosion;
 
 	
+
+
+
 	// Getters
 
 	UFUNCTION(BlueprintPure, Category = "Player")
@@ -72,6 +95,12 @@ public:
 	// Timer to contro waiting after destruction
 	FTimerHandle timerHandle;
 
+	//Audios
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* AudioShoot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundCue* AudioExplosion;
+
 
 protected:
 
@@ -87,13 +116,23 @@ protected:
 	virtual void BeginPlay() override;
 	
 	void OnPlayerDestroyed();
+	
+
 	void OnMove(float value);
+	
 	void OnFire();
+	
+	void OnPause();
 
 	
 
 private:
 
+	// Audio component
+	UPROPERTY()
+		class UAudioComponent* AudioComponent;
+
+	
 	UPROPERTY() //This is necessary to control the reference counter of the ABullet and avoid garbage collector action
 		class ABullet* bulletTemplate; // used as template for spawning
 	// Constant default values
@@ -104,6 +143,9 @@ private:
 
 	// To set a frozen state (no moving and firing capabilities)
 	bool bFrozen;
+
+	//To pause the Game
+	bool bPause;
 
 	static constexpr const TCHAR* defaultStaticMeshPath = TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'");
 	
